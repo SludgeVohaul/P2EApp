@@ -6,6 +6,8 @@ namespace P2E.Services
 {
     public class UserCredentialsService : IUserCredentialsService
     {
+        // TODO - revert that stuipd locking idea and introduce a Credentials class instead.
+
         // Syncs console output/input between instance so that only one 
         // instance can request user credentials at any time.
         private static readonly object LockObject = new object();
