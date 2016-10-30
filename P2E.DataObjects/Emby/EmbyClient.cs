@@ -5,7 +5,7 @@ using MediaBrowser.Model.Logging;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 
-namespace P2E.DataObjects
+namespace P2E.DataObjects.Emby
 {
     public class EmbyClient : ApiClient, IEmbyClient
     {

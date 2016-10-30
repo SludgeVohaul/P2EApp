@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationInformation.cs" />
-    <Compile Include="EmbyClient.cs" />
+    <Compile Include="Emby\EmbyClient.cs" />
     <Compile Include="Emby\Device.cs" />
     <Compile Include="Emby\EmbyConnectionInformation.cs" />
     <Compile Include="Plex\PlexConnectionInformation.cs" />
