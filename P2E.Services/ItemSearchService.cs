@@ -20,16 +20,12 @@ namespace P2E.Services
                 //_repository.SetClientCapabilities();
                 _repository.GetStuff();
 
-
-
                 return true;
             }
             finally
             {
                 _repository.Disconnect();
             }
-
-            
         }
     }
 }
