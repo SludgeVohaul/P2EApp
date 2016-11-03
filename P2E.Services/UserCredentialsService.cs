@@ -1,36 +1,29 @@
 ﻿using System;
 using System.Text;
+using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.Services;
 
 namespace P2E.Services
 {
     public class UserCredentialsService : IUserCredentialsService
     {
-        // TODO - revert that stuipd locking idea and introduce a Credentials class instead.
-
-        // Syncs console output/input between instance so that only one 
-        // instance can request user credentials at any time.
-        private static readonly object LockObject = new object();
-
-        public string Loginname { get; private set; }
-        public string Password { get; private set; }
-
-        public void GetUserCredentials()
+        private readonly IUserCredentials _userCredentials;
+        public UserCredentialsService(IUserCredentials userCredentials)
         {
-            // Each instance can request credentials only once.
-            if (HasUserCredentials) return;
-            lock (LockObject)
-            {
-                if (HasUserCredentials) return;
-
-                Console.Out.Write("Username: ");
-                Loginname = Console.ReadLine();
-                Console.Out.Write("Password: ");
-                Password = GetPassword();
-            }
+            _userCredentials = userCredentials;
         }
 
-        public bool HasUserCredentials => Loginname != null && Password != null;
+        public IUserCredentials GetUserCredentials(IConnectionInformation connectionInformation)
+        {
+            if (_userCredentials.HasCredentials) return _userCredentials;
+
+            Console.Out.Write($"{connectionInformation.IpAddress} username: ", connectionInformation.IpAddress);
+            _userCredentials.Loginname = Console.ReadLine();
+            Console.Out.Write($"{_userCredentials.Loginname}@{connectionInformation.IpAddress}'s password: ");
+            _userCredentials.Password = GetPassword();
+
+            return _userCredentials;
+        }
 
         private string GetPassword()
         {

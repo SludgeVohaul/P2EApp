@@ -2,6 +2,7 @@
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Users;
 using P2E.Extensions.Exception;
+using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Services;
 
@@ -16,13 +17,11 @@ namespace P2E.Services
             _logger = logger;
         }
 
-        public AuthenticationResult Login(IEmbyClient embyClient, IUserCredentialsService userCredentialsService)
+        public AuthenticationResult Login(IEmbyClient embyClient, IUserCredentials userCredentials)
         {
             try
             {
-                if (userCredentialsService.HasUserCredentials == false) userCredentialsService.GetUserCredentials();
-
-                var authTask = embyClient.AuthenticateUserAsync(userCredentialsService.Loginname, userCredentialsService.Password);
+                var authTask = embyClient.AuthenticateUserAsync(userCredentials.Loginname, userCredentials.Password);
                 authTask.Wait();
 
                 return authTask.Result;

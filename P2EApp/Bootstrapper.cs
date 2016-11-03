@@ -15,7 +15,7 @@ using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Repositories;
 using P2E.Interfaces.Services;
 using P2E.Logging;
-using P2E.Repositories;
+using P2E.Repositories.Emby;
 using P2E.Services;
 
 namespace P2EApp
@@ -38,7 +38,8 @@ namespace P2EApp
             kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();
             kernel.Bind<ILogic>().To<Logic>().InSingletonScope();
             kernel.Bind<IApplicationInformation>().To<ApplicationInformation>().InSingletonScope();
-            kernel.Bind<IConnectionInformation>().To<EmbyConnectionInformation>().WhenInjectedInto<IEmbyClient>();            
+            kernel.Bind<IConnectionInformation>().To<EmbyConnectionInformation>().WhenInjectedInto<IEmbyClient>();
+            kernel.Bind<IUserCredentials>().To<UserCredentials>();
         }
     }
 }

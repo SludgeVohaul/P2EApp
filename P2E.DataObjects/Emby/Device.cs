@@ -18,7 +18,7 @@ namespace P2E.DataObjects.Emby
 
         public Device()
         {
-            DeviceName = System.Environment.MachineName;
+            DeviceName = Environment.MachineName;
             DeviceId = NetworkInterface.GetAllNetworkInterfaces()
                 .Where(x => x.OperationalStatus == OperationalStatus.Up)
                 .Select(x => x.GetPhysicalAddress()

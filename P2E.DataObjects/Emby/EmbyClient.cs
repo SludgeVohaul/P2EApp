@@ -9,9 +9,12 @@ namespace P2E.DataObjects.Emby
 {
     public class EmbyClient : ApiClient, IEmbyClient
     {
+        public IConnectionInformation ConnectionInformation { get; }
+
         public EmbyClient(ILogger logger, IDevice device, ICryptographyProvider cryptographyProvider, IConnectionInformation connectionInformation, IApplicationInformation applicationInformation)
             : base(logger, connectionInformation.ServerUrl, applicationInformation.Name, device, applicationInformation.Version, cryptographyProvider)
         {
+            ConnectionInformation = connectionInformation;
         }
     }
 }

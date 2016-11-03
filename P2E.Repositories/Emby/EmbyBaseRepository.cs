@@ -5,7 +5,7 @@ using MediaBrowser.Model.Users;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Services;
 
-namespace P2E.Repositories
+namespace P2E.Repositories.Emby
 {
     public abstract class EmbyBaseRepository
     {
@@ -37,18 +37,19 @@ namespace P2E.Repositories
             {
                 if (_authResult != null)
                 {
-                    Logger.Error("Client is already authenticated!");
-                    return false;
+                    Logger.Warn("Client is already authenticated!");
+                    return true;
                 }
             }
-            
-            _authResult = _embyConnectionService.Login(EmbyClient, _userCredentialsService);
+            var userCredentials = _userCredentialsService.GetUserCredentials(EmbyClient.ConnectionInformation);
+            _authResult = _embyConnectionService.Login(EmbyClient, userCredentials);
 
             lock (_lockObject)
             {
                 if (_authResult != null) return true;
 
-                Logger.Error("Failed to authenticate!");
+                Logger.Error($"Failed to connect to {EmbyClient.ConnectionInformation.IpAddress}");
+                userCredentials.ResetCredentials();
                 return false;
             }
         }
@@ -58,6 +59,7 @@ namespace P2E.Repositories
         {
             lock (_lockObject)
             {
+                // Client is not connected.
                 if (_authResult == null) return;
             }
             

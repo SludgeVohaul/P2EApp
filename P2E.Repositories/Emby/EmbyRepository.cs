@@ -7,7 +7,7 @@ using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Repositories;
 using P2E.Interfaces.Services;
 
-namespace P2E.Repositories
+namespace P2E.Repositories.Emby
 {
     public class EmbyRepository : EmbyBaseRepository, IEmbyRepository
     {
