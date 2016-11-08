@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Linq;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Querying;
-using P2E.Extensions.Exception;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Repositories;
 
@@ -47,11 +47,9 @@ namespace P2E.Repositories.Emby
             }
             catch (AggregateException ae)
             {
-                foreach (var innerException in ae.GetInnerExceptions())
-                {
-                    if (innerException is AggregateException) continue;
-                    _logger.Error(innerException.Message);
-                }
+                ae.Flatten().InnerExceptions
+                    .ToList()
+                    .ForEach(x => _logger.Error(x.Message));
             }
         }
     }

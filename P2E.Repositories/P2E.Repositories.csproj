@@ -46,10 +46,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\P2E.Extensions\P2E.Extensions.csproj">
-      <Project>{228e9e79-e8c3-48e2-8f27-87c1f1b281c3}</Project>
-      <Name>P2E.Extensions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\P2E.Interfaces\P2E.Interfaces.csproj">
       <Project>{004a4c44-8bd7-4065-921c-f891cc3dbd97}</Project>
       <Name>P2E.Interfaces</Name>
