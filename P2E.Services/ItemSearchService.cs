@@ -1,4 +1,5 @@
-﻿using P2E.Interfaces.Repositories;
+﻿using P2E.Interfaces.DataObjects.Emby;
+using P2E.Interfaces.Repositories;
 using P2E.Interfaces.Services;
 
 namespace P2E.Services
@@ -7,6 +8,8 @@ namespace P2E.Services
     {
         private readonly IEmbyRepository _repository;
 
+        public IEmbyClient EmbyClient { get; set; }
+
         public ItemSearchService(IEmbyRepository repository)
         {
             _repository = repository;
@@ -14,18 +17,11 @@ namespace P2E.Services
 
         public bool TryExecute()
         {
-            try
-            {
-                if (_repository.TryConnect() == false) return false;
-                //_repository.SetClientCapabilities();
-                _repository.GetStuff();
+            _repository.EmbyClient = EmbyClient;
 
-                return true;
-            }
-            finally
-            {
-                _repository.Disconnect();
-            }
+            _repository.GetStuff();
+
+            return true;
         }
     }
 }

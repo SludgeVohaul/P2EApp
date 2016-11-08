@@ -1,28 +1,30 @@
 ﻿using System;
 using System.Text;
 using P2E.Interfaces.DataObjects;
+using P2E.Interfaces.Factories;
 using P2E.Interfaces.Services;
 
 namespace P2E.Services
 {
     public class UserCredentialsService : IUserCredentialsService
     {
-        private readonly IUserCredentials _userCredentials;
-        public UserCredentialsService(IUserCredentials userCredentials)
+        private readonly IUserCredentialsFactory _userCredentialsFactory;
+
+        public UserCredentialsService(IUserCredentialsFactory userCredentialsFactory)
         {
-            _userCredentials = userCredentials;
+            _userCredentialsFactory = userCredentialsFactory;
         }
 
         public IUserCredentials GetUserCredentials(IConnectionInformation connectionInformation)
         {
-            if (_userCredentials.HasCredentials) return _userCredentials;
+            var userCredentials = _userCredentialsFactory.CreateUserCredentials();
 
             Console.Out.Write($"{connectionInformation.IpAddress} username: ", connectionInformation.IpAddress);
-            _userCredentials.Loginname = Console.ReadLine();
-            Console.Out.Write($"{_userCredentials.Loginname}@{connectionInformation.IpAddress}'s password: ");
-            _userCredentials.Password = GetPassword();
+            userCredentials.Loginname = Console.ReadLine();
+            Console.Out.Write($"{userCredentials.Loginname}@{connectionInformation.IpAddress}'s password: ");
+            userCredentials.Password = GetPassword();
 
-            return _userCredentials;
+            return userCredentials;
         }
 
         private string GetPassword()

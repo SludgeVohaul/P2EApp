@@ -1,10 +1,10 @@
-﻿namespace P2E.Interfaces.Repositories
+﻿using P2E.Interfaces.DataObjects.Emby;
+
+namespace P2E.Interfaces.Repositories
 {
     public interface IEmbyRepository
     {
-        bool TryConnect();
-        void Disconnect();
-
+        IEmbyClient EmbyClient { get; set; }
         //void SetClientCapabilities();
 
         void GetStuff();

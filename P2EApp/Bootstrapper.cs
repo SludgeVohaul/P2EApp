@@ -2,16 +2,19 @@
 using MediaBrowser.Model.ApiClient;
 using MediaBrowser.Model.Logging;
 using Ninject;
-using Ninject.Extensions.NamedScope;
+using Ninject.Extensions.Factory;
 using P2E.AppLogic;
 using P2E.CommandLine;
 using P2E.DataObjects;
 using P2E.DataObjects.Emby;
 using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine;
-using P2E.Interfaces.CommandLine.ServerOptions;
+using P2E.Interfaces.CommandLine.LibraryOptions;
+using P2E.Interfaces.CommandLine.ServerOptions.Emby;
+using P2E.Interfaces.CommandLine.ServerOptions.Plex;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
+using P2E.Interfaces.Factories;
 using P2E.Interfaces.Repositories;
 using P2E.Interfaces.Services;
 using P2E.Logging;
@@ -24,22 +27,38 @@ namespace P2EApp
     {
         public static void ConfigureContainer(IKernel kernel)
         {
-            kernel.Bind<IConsoleOptions, IConsolePlexConnectionOptions, IConsoleEmbyConnectionOptions>().To<ConsoleOptions>().InSingletonScope();
+            kernel.Bind(
+                typeof(IConsoleOptions),
+                typeof(IConsoleEmbyInstance1ConnectionOptions), 
+                typeof(IConsolePlexInstance1ConnectionOptions),
+                typeof(IConsolePlexLibraryOptions),
+                typeof(IConsoleEmbyLibraryOptions)).To<ConsoleOptions>().InSingletonScope();
+
             kernel.Bind<ILogger>().To<ConsoleLogger>().InSingletonScope();
 
-            const string scopeName = "EmbyRepository";
-            kernel.Bind<IEmbyRepository>().To<EmbyRepository>().DefinesNamedScope(scopeName);
-            kernel.Bind<IEmbyClient>().To<EmbyClient>().InNamedScope(scopeName);
+            kernel.Bind<IConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>>().To<ConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>>();
+            kernel.Bind<IConnectionInformation<IConsolePlexInstance1ConnectionOptions>>().To<ConnectionInformation<IConsolePlexInstance1ConnectionOptions>>();
+
+            kernel.Bind<IUserCredentials>().To<UserCredentials>();
 
             kernel.Bind<IDevice>().To<Device>().InSingletonScope();
             kernel.Bind<ICryptographyProvider>().To<CryptographyProvider>();
+
+            kernel.Bind<IApplicationInformation>().To<ApplicationInformation>().InSingletonScope();
+
+            kernel.Bind<IEmbyClient>().To<EmbyClient>();
+
+            kernel.Bind<IEmbyClientFactory>().ToFactory();
+            kernel.Bind<IUserCredentialsFactory>().ToFactory();
+            kernel.Bind<IConnectionInformationFactory>().ToFactory();
+
+            kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();
             kernel.Bind<IEmbyConnectionService>().To<EmbyConnectionService>();
             kernel.Bind<IItemSearchService>().To<ItemSearchService>();
-            kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();
-            kernel.Bind<ILogic>().To<Logic>().InSingletonScope();
-            kernel.Bind<IApplicationInformation>().To<ApplicationInformation>().InSingletonScope();
-            kernel.Bind<IConnectionInformation>().To<EmbyConnectionInformation>().WhenInjectedInto<IEmbyClient>();
-            kernel.Bind<IUserCredentials>().To<UserCredentials>();
+
+            kernel.Bind<IEmbyRepository>().To<EmbyRepository>();
+
+            kernel.Bind<ILogic>().To<Logic>().InSingletonScope();            
         }
     }
 }

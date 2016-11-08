@@ -6,6 +6,7 @@ namespace P2E.Interfaces.Services
 {
     public interface IEmbyConnectionService
     {
+        // TODO - handle authResult
         AuthenticationResult Login(IEmbyClient embyClient, IUserCredentials userCredentials);
         void Logout(IEmbyClient embyClient);
     }
