@@ -2,7 +2,6 @@
 
 namespace P2E.Interfaces.DataObjects
 {
-    // TODO - is the constraint necessary?
     public interface IConnectionInformation<T> : IConnectionInformation where T : IConsoleConnectionOptions<T>
     {
     }
