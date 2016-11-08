@@ -3,8 +3,6 @@ using CommandLine.Text;
 using P2E.Interfaces.CommandLine;
 using P2E.Interfaces.CommandLine.LibraryOptions;
 using P2E.Interfaces.CommandLine.ServerOptions;
-using P2E.Interfaces.CommandLine.ServerOptions.Emby;
-using P2E.Interfaces.CommandLine.ServerOptions.Plex;
 
 namespace P2E.CommandLine
 {

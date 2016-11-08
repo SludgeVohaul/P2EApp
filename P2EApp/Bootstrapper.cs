@@ -10,8 +10,7 @@ using P2E.DataObjects.Emby;
 using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine;
 using P2E.Interfaces.CommandLine.LibraryOptions;
-using P2E.Interfaces.CommandLine.ServerOptions.Emby;
-using P2E.Interfaces.CommandLine.ServerOptions.Plex;
+using P2E.Interfaces.CommandLine.ServerOptions;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Factories;
@@ -51,6 +50,7 @@ namespace P2EApp
             kernel.Bind<IEmbyClientFactory>().ToFactory();
             kernel.Bind<IUserCredentialsFactory>().ToFactory();
             kernel.Bind<IConnectionInformationFactory>().ToFactory();
+            kernel.Bind<IServiceFactory>().ToFactory();
 
             kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();
             kernel.Bind<IEmbyConnectionService>().To<EmbyConnectionService>();

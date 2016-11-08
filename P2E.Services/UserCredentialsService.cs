@@ -15,7 +15,7 @@ namespace P2E.Services
             _userCredentialsFactory = userCredentialsFactory;
         }
 
-        public IUserCredentials GetUserCredentials(IConnectionInformation connectionInformation)
+        public IUserCredentials PromptForUserCredentials(IConnectionInformation connectionInformation)
         {
             var userCredentials = _userCredentialsFactory.CreateUserCredentials();
 

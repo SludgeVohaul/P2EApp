@@ -52,14 +52,15 @@
     <Compile Include="CommandLine\LibraryOptions\IConsolePlexLibraryOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsoleConnectionOptions.cs" />
     <Compile Include="CommandLine\IConsoleOptions.cs" />
-    <Compile Include="CommandLine\ServerOptions\Emby\IConsoleEmbyInstance1ConnectionOptions.cs" />
-    <Compile Include="CommandLine\ServerOptions\Plex\IConsolePlexInstance1ConnectionOptions.cs" />
+    <Compile Include="CommandLine\ServerOptions\IConsoleEmbyInstance1ConnectionOptions.cs" />
+    <Compile Include="CommandLine\ServerOptions\IConsolePlexInstance1ConnectionOptions.cs" />
     <Compile Include="DataObjects\IApplicationInformation.cs" />
     <Compile Include="DataObjects\IConnectionInformation.cs" />
     <Compile Include="DataObjects\Emby\IEmbyClient.cs" />
     <Compile Include="DataObjects\IUserCredentials.cs" />
     <Compile Include="Factories\IConnectionInformationFactory.cs" />
     <Compile Include="Factories\IEmbyClientFactory.cs" />
+    <Compile Include="Factories\IServiceFactory.cs" />
     <Compile Include="Factories\IUserCredentialsFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IEmbyRepository.cs" />
