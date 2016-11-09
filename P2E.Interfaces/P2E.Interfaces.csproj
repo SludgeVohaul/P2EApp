@@ -47,9 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppLogic\ILogic.cs" />
-    <Compile Include="CommandLine\LibraryOptions\IConsoleEmbyLibraryOptions.cs" />
-    <Compile Include="CommandLine\LibraryOptions\IConsoleLibraryOptions.cs" />
-    <Compile Include="CommandLine\LibraryOptions\IConsolePlexLibraryOptions.cs" />
+    <Compile Include="CommandLine\IConsoleLibraryOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsoleConnectionOptions.cs" />
     <Compile Include="CommandLine\IConsoleOptions.cs" />
     <Compile Include="CommandLine\IConsoleSyncOptions.cs" />

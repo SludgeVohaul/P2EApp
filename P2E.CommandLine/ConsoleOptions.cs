@@ -1,12 +1,15 @@
 ﻿using CommandLine;
 using CommandLine.Text;
 using P2E.Interfaces.CommandLine;
-using P2E.Interfaces.CommandLine.LibraryOptions;
 using P2E.Interfaces.CommandLine.ServerOptions;
 
 namespace P2E.CommandLine
 {
-    public class ConsoleOptions : IConsoleOptions, IConsolePlexInstance1ConnectionOptions, IConsoleEmbyInstance1ConnectionOptions, IConsolePlexLibraryOptions, IConsoleEmbyLibraryOptions, IConsoleSyncOptions
+    public class ConsoleOptions 
+        : IConsoleOptions, 
+        IConsolePlexInstance1ConnectionOptions, IConsoleEmbyInstance1ConnectionOptions, 
+        IConsoleLibraryOptions, 
+        IConsoleSyncOptions
     {
         [HelpOption]
         public string GetUsage()
@@ -33,14 +36,11 @@ namespace P2E.CommandLine
 
         [Option('l', "plexlibrary", Required = true, HelpText = "Plex library name")]
         public string PlexLibraryName { get; set; }
-
         [Option('m', "embylibrary", Required = false, DefaultValue = "", HelpText = "Emby library name")]
         public string EmbyLibraryName { get; set; }
 
         [Option('p', "moviecollections", HelpText = "Sync the movie collections.")]
         public bool HasMovieCollections { get; set; }
-
-
 
         string IConsoleConnectionOptions<IConsolePlexInstance1ConnectionOptions>.Protocol => Plex1Protocol;
         string IConsoleConnectionOptions<IConsolePlexInstance1ConnectionOptions>.IpAddress => Plex1IpAddress;
@@ -49,8 +49,5 @@ namespace P2E.CommandLine
         string IConsoleConnectionOptions<IConsoleEmbyInstance1ConnectionOptions>.Protocol => Emby1Protocol;
         string IConsoleConnectionOptions<IConsoleEmbyInstance1ConnectionOptions>.IpAddress => Emby1IpAddress;
         int IConsoleConnectionOptions<IConsoleEmbyInstance1ConnectionOptions>.Port => Emby1Port;
-
-        string IConsoleLibraryOptions<IConsoleEmbyLibraryOptions>.LibraryName => EmbyLibraryName;
-        string IConsoleLibraryOptions<IConsolePlexLibraryOptions>.LibraryName => PlexLibraryName;
     }
 }

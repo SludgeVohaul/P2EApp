@@ -9,7 +9,6 @@ using P2E.DataObjects;
 using P2E.DataObjects.Emby;
 using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine;
-using P2E.Interfaces.CommandLine.LibraryOptions;
 using P2E.Interfaces.CommandLine.ServerOptions;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
@@ -30,8 +29,7 @@ namespace P2EApp
                 typeof(IConsoleOptions),
                 typeof(IConsoleEmbyInstance1ConnectionOptions), 
                 typeof(IConsolePlexInstance1ConnectionOptions),
-                typeof(IConsolePlexLibraryOptions),
-                typeof(IConsoleEmbyLibraryOptions),
+                typeof(IConsoleLibraryOptions),
                 typeof(IConsoleSyncOptions)).To<ConsoleOptions>().InSingletonScope();
 
             kernel.Bind<ILogger>().To<ConsoleLogger>().InSingletonScope();
