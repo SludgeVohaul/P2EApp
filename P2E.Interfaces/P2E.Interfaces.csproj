@@ -52,6 +52,7 @@
     <Compile Include="CommandLine\LibraryOptions\IConsolePlexLibraryOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsoleConnectionOptions.cs" />
     <Compile Include="CommandLine\IConsoleOptions.cs" />
+    <Compile Include="CommandLine\IConsoleSyncOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsoleEmbyInstance1ConnectionOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsolePlexInstance1ConnectionOptions.cs" />
     <Compile Include="DataObjects\IApplicationInformation.cs" />
