@@ -1,5 +1,4 @@
-﻿using MediaBrowser.Model.Logging;
-using P2E.Interfaces.AppLogic;
+﻿using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine.ServerOptions;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
@@ -13,7 +12,6 @@ namespace P2E.AppLogic
         private readonly IEmbyClientFactory _embyClientFactory;
         private readonly IConnectionInformationFactory _connectionInformationFactory;
         private readonly IServiceFactory _serviceFactory;
-        private readonly ILogger _logger;
 
         private IItemSearchService _itemSearchService;
         private IUserCredentialsService _userCredentialsService;
@@ -27,13 +25,11 @@ namespace P2E.AppLogic
 
         public Logic(IEmbyClientFactory embyClientFactory,
             IConnectionInformationFactory connectionInformationFactory,
-            IServiceFactory serviceFactory,
-            ILogger logger)
+            IServiceFactory serviceFactory)
         {
             _embyClientFactory = embyClientFactory;
             _connectionInformationFactory = connectionInformationFactory;
             _serviceFactory = serviceFactory;
-            _logger = logger;
         }
 
         public void Run()
@@ -48,8 +44,7 @@ namespace P2E.AppLogic
                 // TODO - handle RemoteLoggedOut?
                 //_embyClient.RemoteLoggedOut += EmbyClient_RemoteLoggedOut;
                 
-                _itemSearchService.EmbyClient = _embyClient;
-                _itemSearchService.TryExecute();
+                _itemSearchService.TryExecute(_embyClient);
             }
             finally
             {

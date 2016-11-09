@@ -4,7 +4,6 @@ namespace P2E.Interfaces.Services
 {
     public interface IItemSearchService
     {
-        IEmbyClient EmbyClient { get; set; }
-        bool TryExecute();
+        bool TryExecute(IEmbyClient embyClient);
     }
 }

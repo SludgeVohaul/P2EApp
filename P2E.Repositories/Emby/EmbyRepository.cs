@@ -12,12 +12,12 @@ namespace P2E.Repositories.Emby
     public class EmbyRepository : IEmbyRepository
     {
         private readonly ILogger _logger;
+        private readonly IEmbyClient _embyClient;
 
-        public IEmbyClient EmbyClient { get; set; }
-
-        public EmbyRepository(ILogger logger)
+        public EmbyRepository(ILogger logger, IEmbyClient embyClient)
         {
             _logger = logger;
+            _embyClient = embyClient;
         }
 
         public void GetStuff()
@@ -25,7 +25,7 @@ namespace P2E.Repositories.Emby
             // Get the ten most recently added items for the current user.
             var query = new ItemQuery
             {
-                UserId = EmbyClient.CurrentUserId,
+                UserId = _embyClient.CurrentUserId,
 
                 SortBy = new[] {ItemSortBy.DateCreated},
                 SortOrder = SortOrder.Descending,
@@ -41,7 +41,7 @@ namespace P2E.Repositories.Emby
 
             try
             {
-                var getItemsTask = EmbyClient.GetItemsAsync(query);
+                var getItemsTask = _embyClient.GetItemsAsync(query);
 
                 getItemsTask.Wait();
                 var items = getItemsTask.Result;

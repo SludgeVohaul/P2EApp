@@ -60,6 +60,7 @@
     <Compile Include="DataObjects\IUserCredentials.cs" />
     <Compile Include="Factories\IConnectionInformationFactory.cs" />
     <Compile Include="Factories\IEmbyClientFactory.cs" />
+    <Compile Include="Factories\IEmbyRepositoryFactory.cs" />
     <Compile Include="Factories\IServiceFactory.cs" />
     <Compile Include="Factories\IUserCredentialsFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

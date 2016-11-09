@@ -1,25 +1,24 @@
 ﻿using P2E.Interfaces.DataObjects.Emby;
-using P2E.Interfaces.Repositories;
+using P2E.Interfaces.Factories;
 using P2E.Interfaces.Services;
 
 namespace P2E.Services
 {
     public class ItemSearchService : IItemSearchService
     {
-        private readonly IEmbyRepository _repository;
-
+        private readonly IEmbyRepositoryFactory _embyRepositoryFactory;
         public IEmbyClient EmbyClient { get; set; }
 
-        public ItemSearchService(IEmbyRepository repository)
+        public ItemSearchService(IEmbyRepositoryFactory embyRepositoryFactory)
         {
-            _repository = repository;
+            _embyRepositoryFactory = embyRepositoryFactory;
         }
 
-        public bool TryExecute()
+        public bool TryExecute(IEmbyClient embyClient)
         {
-            _repository.EmbyClient = EmbyClient;
+            var repository = _embyRepositoryFactory.CreateEmbyRepository(embyClient);
 
-            _repository.GetStuff();
+            repository.GetStuff();
 
             return true;
         }
