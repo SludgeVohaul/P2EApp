@@ -31,7 +31,8 @@ namespace P2EApp
                 typeof(IConsoleEmbyInstance1ConnectionOptions), 
                 typeof(IConsolePlexInstance1ConnectionOptions),
                 typeof(IConsolePlexLibraryOptions),
-                typeof(IConsoleEmbyLibraryOptions)).To<ConsoleOptions>().InSingletonScope();
+                typeof(IConsoleEmbyLibraryOptions),
+                typeof(IConsoleSyncOptions)).To<ConsoleOptions>().InSingletonScope();
 
             kernel.Bind<ILogger>().To<ConsoleLogger>().InSingletonScope();
 

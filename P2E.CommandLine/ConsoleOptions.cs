@@ -6,7 +6,7 @@ using P2E.Interfaces.CommandLine.ServerOptions;
 
 namespace P2E.CommandLine
 {
-    public class ConsoleOptions : IConsoleOptions, IConsolePlexInstance1ConnectionOptions, IConsoleEmbyInstance1ConnectionOptions, IConsolePlexLibraryOptions, IConsoleEmbyLibraryOptions
+    public class ConsoleOptions : IConsoleOptions, IConsolePlexInstance1ConnectionOptions, IConsoleEmbyInstance1ConnectionOptions, IConsolePlexLibraryOptions, IConsoleEmbyLibraryOptions, IConsoleSyncOptions
     {
         [HelpOption]
         public string GetUsage()
@@ -36,6 +36,11 @@ namespace P2E.CommandLine
 
         [Option('m', "embylibrary", Required = false, DefaultValue = "", HelpText = "Emby library name")]
         public string EmbyLibraryName { get; set; }
+
+        [Option('p', "moviecollections", HelpText = "Sync the movie collections.")]
+        public bool HasMovieCollections { get; set; }
+
+
 
         string IConsoleConnectionOptions<IConsolePlexInstance1ConnectionOptions>.Protocol => Plex1Protocol;
         string IConsoleConnectionOptions<IConsolePlexInstance1ConnectionOptions>.IpAddress => Plex1IpAddress;
