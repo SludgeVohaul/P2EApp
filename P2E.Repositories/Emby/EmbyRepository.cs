@@ -3,6 +3,7 @@ using System.Linq;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Querying;
+using P2E.ExtensionMethods;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Repositories;
 
@@ -49,7 +50,9 @@ namespace P2E.Repositories.Emby
             {
                 ae.Flatten().InnerExceptions
                     .ToList()
-                    .ForEach(x => _logger.Error(x.Message));
+                    .Select(e => e.GetInnermostException())
+                    .ToList()
+                    .ForEach(e => _logger.ErrorException(e.Message, e));
             }
         }
     }

@@ -2,6 +2,7 @@
 using System.Linq;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Users;
+using P2E.ExtensionMethods;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Services;
@@ -30,7 +31,9 @@ namespace P2E.Services
             {
                 ae.Flatten().InnerExceptions
                     .ToList()
-                    .ForEach(x => _logger.Error(x.Message));
+                    .Select(e => e.GetInnermostException())
+                    .ToList()
+                    .ForEach(e => _logger.ErrorException(e.Message, e));
 
                 return null;
             }
@@ -47,7 +50,9 @@ namespace P2E.Services
             {
                 ae.Flatten().InnerExceptions
                     .ToList()
-                    .ForEach(x => _logger.Error(x.Message));
+                    .Select(e => e.GetInnermostException())
+                    .ToList()
+                    .ForEach(e => _logger.ErrorException(e.Message, e));
             }
 
         }

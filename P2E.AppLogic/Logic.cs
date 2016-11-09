@@ -1,5 +1,4 @@
-﻿using MediaBrowser.Model.ApiClient;
-using MediaBrowser.Model.Events;
+﻿using MediaBrowser.Model.Logging;
 using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine.ServerOptions;
 using P2E.Interfaces.DataObjects;
@@ -14,6 +13,7 @@ namespace P2E.AppLogic
         private readonly IEmbyClientFactory _embyClientFactory;
         private readonly IConnectionInformationFactory _connectionInformationFactory;
         private readonly IServiceFactory _serviceFactory;
+        private readonly ILogger _logger;
 
         private IItemSearchService _itemSearchService;
         private IUserCredentialsService _userCredentialsService;
@@ -27,11 +27,13 @@ namespace P2E.AppLogic
 
         public Logic(IEmbyClientFactory embyClientFactory,
             IConnectionInformationFactory connectionInformationFactory,
-            IServiceFactory serviceFactory)
+            IServiceFactory serviceFactory,
+            ILogger logger)
         {
             _embyClientFactory = embyClientFactory;
             _connectionInformationFactory = connectionInformationFactory;
             _serviceFactory = serviceFactory;
+            _logger = logger;
         }
 
         public void Run()
@@ -43,9 +45,9 @@ namespace P2E.AppLogic
 
             try
             {
-                _embyClient.RemoteLoggedOut += EmbyClient_RemoteLoggedOut;
-                // TODO - handle RemoteLoggedOut
-
+                // TODO - handle RemoteLoggedOut?
+                //_embyClient.RemoteLoggedOut += EmbyClient_RemoteLoggedOut;
+                
                 _itemSearchService.EmbyClient = _embyClient;
                 _itemSearchService.TryExecute();
             }
@@ -66,28 +68,6 @@ namespace P2E.AppLogic
 
             _embyClient = _embyClientFactory.CreateEmbyClient(_connectionInformationEmby1);
             _embyUserCredentials = _userCredentialsService.PromptForUserCredentials(_connectionInformationEmby1);
-        }
-
-        private void EmbyClient_RemoteLoggedOut(object sender, GenericEventArgs<RemoteLogoutReason> e)
-        {
-            //var remoteLogoutReason = e.Argument;
-            //switch (remoteLogoutReason)
-            //{
-            //    case RemoteLogoutReason.GeneralAccesError:
-            //        Logger.Debug("General Access Error");
-            //        break;
-            //    case RemoteLogoutReason.ParentalControlRestriction:
-            //        Logger.Debug("Parental Control");
-            //        break;
-            //    default:
-            //        Logger.Debug("Something else");
-            //        break;
-            //}
-
-            //lock (_lockObject)
-            //{
-            //    _authResult = null;
-            //}
         }
     }
 }
