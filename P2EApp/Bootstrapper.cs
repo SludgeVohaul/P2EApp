@@ -46,7 +46,7 @@ namespace P2EApp
 
             kernel.Bind<IEmbyClient>().To<EmbyClient>();
 
-            kernel.Bind<IEmbyClientFactory>().ToFactory();
+            kernel.Bind<IClientFactory>().ToFactory();
             kernel.Bind<IUserCredentialsFactory>().ToFactory();
             kernel.Bind<IConnectionInformationFactory>().ToFactory();
             kernel.Bind<IServiceFactory>().ToFactory();

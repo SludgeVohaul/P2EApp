@@ -1,6 +1,5 @@
 ﻿using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine.ServerOptions;
-using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Factories;
 using P2E.Interfaces.Services;
@@ -9,7 +8,7 @@ namespace P2E.AppLogic
 {
     public class Logic : ILogic
     {
-        private readonly IEmbyClientFactory _embyClientFactory;
+        private readonly IClientFactory _clientFactory;
         private readonly IConnectionInformationFactory _connectionInformationFactory;
         private readonly IServiceFactory _serviceFactory;
 
@@ -17,17 +16,13 @@ namespace P2E.AppLogic
         private IUserCredentialsService _userCredentialsService;
         private IEmbyConnectionService _embyConnectionService;
 
-        private IConnectionInformation _connectionInformationEmby1;
-        private IConnectionInformation _connectionInformationPlex1;
-
-        private IUserCredentials _embyUserCredentials;
         private IEmbyClient _embyClient;
 
-        public Logic(IEmbyClientFactory embyClientFactory,
+        public Logic(IClientFactory clientFactory,
             IConnectionInformationFactory connectionInformationFactory,
             IServiceFactory serviceFactory)
         {
-            _embyClientFactory = embyClientFactory;
+            _clientFactory = clientFactory;
             _connectionInformationFactory = connectionInformationFactory;
             _serviceFactory = serviceFactory;
         }
@@ -36,7 +31,8 @@ namespace P2E.AppLogic
         {
             Initialize();
 
-            var authResult = _embyConnectionService.Login(_embyClient, _embyUserCredentials);
+            var embyUserCredentials = _userCredentialsService.PromptForUserCredentials(_embyClient.ConnectionInformation);
+            var authResult = _embyConnectionService.Login(_embyClient, embyUserCredentials);
             if (authResult == null) return;
 
             try
@@ -58,11 +54,10 @@ namespace P2E.AppLogic
             _itemSearchService = _serviceFactory.CreateItemSearchService();
             _embyConnectionService = _serviceFactory.CreateEmbyConnectionService();
 
-            _connectionInformationEmby1 = _connectionInformationFactory.CreateConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>();
-            _connectionInformationPlex1 = _connectionInformationFactory.CreateConnectionInformation<IConsolePlexInstance1ConnectionOptions>();
+            var connectionInformationEmby1 = _connectionInformationFactory.CreateConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>();
+            var connectionInformationPlex1 = _connectionInformationFactory.CreateConnectionInformation<IConsolePlexInstance1ConnectionOptions>();
 
-            _embyClient = _embyClientFactory.CreateEmbyClient(_connectionInformationEmby1);
-            _embyUserCredentials = _userCredentialsService.PromptForUserCredentials(_connectionInformationEmby1);
+            _embyClient = _clientFactory.CreateEmbyClient(connectionInformationEmby1);
         }
     }
 }

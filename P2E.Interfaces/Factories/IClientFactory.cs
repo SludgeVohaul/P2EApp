@@ -3,7 +3,7 @@ using P2E.Interfaces.DataObjects.Emby;
 
 namespace P2E.Interfaces.Factories
 {
-    public interface IEmbyClientFactory
+    public interface IClientFactory
     {
         IEmbyClient CreateEmbyClient(IConnectionInformation connectionInformation);
     }
