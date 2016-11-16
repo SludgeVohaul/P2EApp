@@ -34,10 +34,10 @@ namespace P2E.AppLogic
             Initialize();
 
             var embyUserCredentials = _userCredentialsService.PromptForUserCredentials(_embyClient.ConnectionInformation);
-            var plexUserCredentials = _userCredentialsService.PromptForUserCredentials(_plexClient.ConnectionInformation);
+            //var plexUserCredentials = _userCredentialsService.PromptForUserCredentials(_plexClient.ConnectionInformation);
 
             if (_connectionService.TryLogin(_embyClient, embyUserCredentials) == false) return;
-            if (_connectionService.TryLogin(_plexClient, plexUserCredentials) == false) return;
+            if (_connectionService.TryLogin(_plexClient) == false) return;
 
 
             try

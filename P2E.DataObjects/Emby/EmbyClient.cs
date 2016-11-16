@@ -20,6 +20,7 @@ namespace P2E.DataObjects.Emby
 
         public async Task LoginAsync(string loginname, string password)
         {
+            // todo -  handle null values.
             var authTask = await AuthenticateUserAsync(loginname, password);
         }
 

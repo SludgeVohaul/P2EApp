@@ -18,11 +18,16 @@ namespace P2E.Interfaces.Services
             _logger = logger;
         }
 
+        public bool TryLogin(IClient client)
+        {
+            return TryLogin(client, null);
+        }
+
         public bool TryLogin(IClient client, IUserCredentials userCredentials)
         {
             try
             {
-                var loginTask = client.LoginAsync(userCredentials.Loginname, userCredentials.Password);
+                var loginTask = client.LoginAsync(userCredentials?.Loginname, userCredentials?.Password);
                 loginTask.Wait();
 
                 return true;
