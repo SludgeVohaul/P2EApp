@@ -1,31 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using MediaBrowser.Model.Logging;
-using MediaBrowser.Model.Users;
+using System.Text;
+using System.Threading.Tasks;
 using P2E.ExtensionMethods;
+using MediaBrowser.Model.Logging;
 using P2E.Interfaces.DataObjects;
-using P2E.Interfaces.DataObjects.Emby;
-using P2E.Interfaces.Services;
 
-namespace P2E.Services
+namespace P2E.Interfaces.Services
 {
-    public class EmbyConnectionService : IEmbyConnectionService
+    public class ConnectionService : IConnectionService  
     {
         private readonly ILogger _logger;
 
-        public EmbyConnectionService(ILogger logger)
+        public ConnectionService(ILogger logger)
         {
             _logger = logger;
         }
 
-        public AuthenticationResult Login(IEmbyClient embyClient, IUserCredentials userCredentials)
+        public bool TryLogin(IClient client, IUserCredentials userCredentials)
         {
             try
             {
-                var authTask = embyClient.AuthenticateUserAsync(userCredentials.Loginname, userCredentials.Password);
-                authTask.Wait();
+                var loginTask = client.LoginAsync(userCredentials.Loginname, userCredentials.Password);
+                loginTask.Wait();
 
-                return authTask.Result;
+                return true;
             }
             catch (AggregateException ae)
             {
@@ -35,15 +35,15 @@ namespace P2E.Services
                     .ToList()
                     .ForEach(e => _logger.ErrorException(e.Message, e));
 
-                return null;
+                return false;
             }
         }
 
-        public void Logout(IEmbyClient embyClient)
+        public void Logout(IClient client)
         {
             try
             {
-                var logoutTask = embyClient.Logout();
+                var logoutTask = client.LogoutAsync();
                 logoutTask.Wait();
             }
             catch (AggregateException ae)
@@ -54,7 +54,6 @@ namespace P2E.Services
                     .ToList()
                     .ForEach(e => _logger.ErrorException(e.Message, e));
             }
-
         }
     }
 }

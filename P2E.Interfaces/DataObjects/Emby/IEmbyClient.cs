@@ -2,8 +2,7 @@
 
 namespace P2E.Interfaces.DataObjects.Emby
 {
-    public interface IEmbyClient : IApiClient
+    public interface IEmbyClient : IApiClient, IClient
     {
-        IConnectionInformation ConnectionInformation { get; }
     }
 }

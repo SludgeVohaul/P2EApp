@@ -4,7 +4,7 @@ namespace P2E.Interfaces.Factories
 {
     public interface IServiceFactory
     {
-        IEmbyConnectionService CreateEmbyConnectionService();
+        IConnectionService CreateConnectionService();
         IItemSearchService CreateItemSearchService();
         IUserCredentialsService CreateUserCredentialsService();
     }

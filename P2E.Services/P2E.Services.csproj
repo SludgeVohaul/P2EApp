@@ -42,7 +42,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EmbyConnectionService.cs" />
+    <Compile Include="ConnectionService.cs" />
     <Compile Include="ItemSearchService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserCredentialsService.cs" />

@@ -1,6 +1,7 @@
 ﻿using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine.ServerOptions;
 using P2E.Interfaces.DataObjects.Emby;
+using P2E.Interfaces.DataObjects.Plex;
 using P2E.Interfaces.Factories;
 using P2E.Interfaces.Services;
 
@@ -14,9 +15,10 @@ namespace P2E.AppLogic
 
         private IItemSearchService _itemSearchService;
         private IUserCredentialsService _userCredentialsService;
-        private IEmbyConnectionService _embyConnectionService;
+        private IConnectionService _connectionService;
 
         private IEmbyClient _embyClient;
+        private IPlexClient _plexClient;
 
         public Logic(IClientFactory clientFactory,
             IConnectionInformationFactory connectionInformationFactory,
@@ -32,8 +34,11 @@ namespace P2E.AppLogic
             Initialize();
 
             var embyUserCredentials = _userCredentialsService.PromptForUserCredentials(_embyClient.ConnectionInformation);
-            var authResult = _embyConnectionService.Login(_embyClient, embyUserCredentials);
-            if (authResult == null) return;
+            var plexUserCredentials = _userCredentialsService.PromptForUserCredentials(_plexClient.ConnectionInformation);
+
+            if (_connectionService.TryLogin(_embyClient, embyUserCredentials) == false) return;
+            if (_connectionService.TryLogin(_plexClient, plexUserCredentials) == false) return;
+
 
             try
             {
@@ -44,7 +49,8 @@ namespace P2E.AppLogic
             }
             finally
             {
-                _embyConnectionService.Logout(_embyClient);
+                _connectionService.Logout(_embyClient);
+                _connectionService.Logout(_plexClient);
             }
         }
 
@@ -52,12 +58,13 @@ namespace P2E.AppLogic
         {
             _userCredentialsService = _serviceFactory.CreateUserCredentialsService();
             _itemSearchService = _serviceFactory.CreateItemSearchService();
-            _embyConnectionService = _serviceFactory.CreateEmbyConnectionService();
+            _connectionService = _serviceFactory.CreateConnectionService();
 
             var connectionInformationEmby1 = _connectionInformationFactory.CreateConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>();
             var connectionInformationPlex1 = _connectionInformationFactory.CreateConnectionInformation<IConsolePlexInstance1ConnectionOptions>();
 
-            _embyClient = _clientFactory.CreateEmbyClient(connectionInformationEmby1);
+            _embyClient = _clientFactory.CreateClient<IEmbyClient>(connectionInformationEmby1);
+            _plexClient = _clientFactory.CreateClient<IPlexClient>(connectionInformationPlex1);
         }
     }
 }

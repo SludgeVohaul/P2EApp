@@ -7,11 +7,13 @@ using P2E.AppLogic;
 using P2E.CommandLine;
 using P2E.DataObjects;
 using P2E.DataObjects.Emby;
+using P2E.DataObjects.Plex;
 using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine;
 using P2E.Interfaces.CommandLine.ServerOptions;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
+using P2E.Interfaces.DataObjects.Plex;
 using P2E.Interfaces.Factories;
 using P2E.Interfaces.Repositories;
 using P2E.Interfaces.Services;
@@ -45,15 +47,16 @@ namespace P2EApp
             kernel.Bind<IApplicationInformation>().To<ApplicationInformation>().InSingletonScope();
 
             kernel.Bind<IEmbyClient>().To<EmbyClient>();
+            kernel.Bind<IPlexClient>().To<PlexClient>();
 
             kernel.Bind<IClientFactory>().ToFactory();
             kernel.Bind<IUserCredentialsFactory>().ToFactory();
             kernel.Bind<IConnectionInformationFactory>().ToFactory();
             kernel.Bind<IServiceFactory>().ToFactory();
-            kernel.Bind<IEmbyRepositoryFactory>().ToFactory();
+            kernel.Bind<IRepositoryFactory>().ToFactory();
 
             kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();
-            kernel.Bind<IEmbyConnectionService>().To<EmbyConnectionService>();
+            kernel.Bind<IConnectionService>().To<ConnectionService>();
             kernel.Bind<IItemSearchService>().To<ItemSearchService>();
 
             kernel.Bind<IEmbyRepository>().To<EmbyRepository>();

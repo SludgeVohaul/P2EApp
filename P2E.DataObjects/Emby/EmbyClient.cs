@@ -1,4 +1,5 @@
-﻿using Emby.ApiInteraction;
+﻿using System.Threading.Tasks;
+using Emby.ApiInteraction;
 using Emby.ApiInteraction.Cryptography;
 using MediaBrowser.Model.ApiClient;
 using MediaBrowser.Model.Logging;
@@ -15,6 +16,16 @@ namespace P2E.DataObjects.Emby
             : base(logger, connectionInformation.ServerUrl, applicationInformation.Name, device, applicationInformation.Version, cryptographyProvider)
         {
             ConnectionInformation = connectionInformation;
+        }
+
+        public async Task LoginAsync(string loginname, string password)
+        {
+            var authTask = await AuthenticateUserAsync(loginname, password);
+        }
+
+        public async Task LogoutAsync()
+        {
+            await Logout();
         }
     }
 }
