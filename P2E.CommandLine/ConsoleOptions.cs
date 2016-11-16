@@ -20,6 +20,9 @@ namespace P2E.CommandLine
         [ParserState]
         public IParserState LastParserState { get; set; }
 
+        [Option("dryrun", Required = false, DefaultValue = false, HelpText = "Sync the movie title sorts.")]
+        public bool DryRun { get; set; }
+
         [Option('a', "plexprotocol", Required = false, DefaultValue = "http", HelpText = "Plex protocol")]
         public string Plex1Protocol { get; set; }
         [Option('b', "plexip", Required = true, HelpText = "Plex ip address")]
@@ -39,8 +42,18 @@ namespace P2E.CommandLine
         [Option('m', "embylibrary", Required = false, DefaultValue = "", HelpText = "Emby library name")]
         public string EmbyLibraryName { get; set; }
 
-        [Option('p', "moviecollections", HelpText = "Sync the movie collections.")]
+        [Option('p', "moviecollections", Required = false, DefaultValue = false, HelpText = "Sync the movie collections.")]
         public bool HasMovieCollections { get; set; }
+        [Option('q', "movietitles", Required = false, DefaultValue = false, HelpText = "Sync the movie titles.")]
+        public bool HasMovieTitle { get; set; }
+        [Option('r', "movieoriginaltitles", Required = false, DefaultValue = false, HelpText = "Sync the movie original titles.")]
+        public bool HasMovieOriginalTitle { get; set; }
+        [Option('r', "movietitlesorts", Required = false, DefaultValue = false, HelpText = "Sync the movie title sorts.")]
+        public bool HasMovieTitleSort { get; set; }
+        [Option('t', "movieviewcounts", Required = false, DefaultValue = false, HelpText = "Sync the movie view counts.")]
+        public bool HasMovieViewCount { get; set; }
+
+        // TODO - introduce a syncall switch.
 
         string IConsoleConnectionOptions<IConsolePlexInstance1ConnectionOptions>.Protocol => Plex1Protocol;
         string IConsoleConnectionOptions<IConsolePlexInstance1ConnectionOptions>.IpAddress => Plex1IpAddress;

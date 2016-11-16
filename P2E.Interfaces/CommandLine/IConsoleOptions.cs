@@ -7,17 +7,16 @@ namespace P2E.Interfaces.CommandLine
     {
         string GetUsage();
 
-        IParserState LastParserState { get; set; }
+        IParserState LastParserState { get; }
 
-        string Plex1Protocol { get; set; }
-        string Plex1IpAddress { get; set; }
+        bool DryRun { get; }
+
+        string Plex1Protocol { get; }
+        string Plex1IpAddress { get; }
         int Plex1Port { get; set; }
 
-        string Emby1Protocol { get; set; }
-        string Emby1IpAddress { get; set; }
-        int Emby1Port { get; set; }
-
-        string EmbyLibraryName { get; set; }
-        string PlexLibraryName { get; set; }
+        string Emby1Protocol { get; }
+        string Emby1IpAddress { get; }
+        int Emby1Port { get; }
     }
 }
