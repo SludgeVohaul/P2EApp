@@ -6,16 +6,14 @@ using RestSharp;
 
 namespace P2E.DataObjects.Plex
 {
-    public class PlexClient : IPlexClient
+    public class PlexClient : RestClient, IPlexClient
     {
-        private RestClient _client;
-
         public IConnectionInformation ConnectionInformation { get; }
 
         public PlexClient(ILogger logger, IConnectionInformation connectionInformation)
+            : base(connectionInformation.ServerUrl)
         {
             ConnectionInformation = connectionInformation;
-            _client = new RestClient(connectionInformation.ServerUrl);
         }
 
         public async Task LoginAsync(string loginname, string password)

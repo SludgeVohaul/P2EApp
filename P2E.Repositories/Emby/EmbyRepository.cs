@@ -6,7 +6,7 @@ using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Querying;
 using P2E.ExtensionMethods;
 using P2E.Interfaces.DataObjects.Emby;
-using P2E.Interfaces.Repositories;
+using P2E.Interfaces.Repositories.Emby;
 using MediaBrowser.Model.Entities;
 
 namespace P2E.Repositories.Emby
@@ -14,12 +14,11 @@ namespace P2E.Repositories.Emby
     public class EmbyRepository : IEmbyRepository
     {
         private readonly ILogger _logger;
-        private readonly IEmbyClient _embyClient;
+        public IEmbyClient Client { get; set; }
 
-        public EmbyRepository(ILogger logger, IEmbyClient embyClient)
+        public EmbyRepository(ILogger logger)
         {
             _logger = logger;
-            _embyClient = embyClient;
         }
 
         public void GetStuff()
@@ -27,7 +26,7 @@ namespace P2E.Repositories.Emby
             // Get the ten most recently added items for the current user.
             var query = new ItemQuery
             {
-                UserId = _embyClient.CurrentUserId,
+                UserId = Client.CurrentUserId,
 
                 SortBy = new[] {ItemSortBy.DateCreated},
                 SortOrder = SortOrder.Descending,
@@ -46,7 +45,7 @@ namespace P2E.Repositories.Emby
 
             try
             {
-                var getItemsTask = _embyClient.GetItemsAsync(query);
+                var getItemsTask = Client.GetItemsAsync(query);
 
                 getItemsTask.Wait();
                 var items = getItemsTask.Result;
@@ -58,7 +57,7 @@ namespace P2E.Repositories.Emby
                     {"ParentId", ""},
                     {"Ids", ""}
                 };
-                var colTask = _embyClient.PostAsync<CollectionCreationResult>(_embyClient.GetApiUrl("Collections"), args);
+                var colTask = Client.PostAsync<CollectionCreationResult>(Client.GetApiUrl("Collections"), args);
                 colTask.Wait();
             }
             catch (AggregateException ae)

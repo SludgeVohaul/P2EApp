@@ -61,14 +61,17 @@
     <Compile Include="DataObjects\Plex\IPlexClient.cs" />
     <Compile Include="Factories\IConnectionInformationFactory.cs" />
     <Compile Include="Factories\IClientFactory.cs" />
-    <Compile Include="Factories\IRepositoryFactory.cs" />
     <Compile Include="Factories\IServiceFactory.cs" />
     <Compile Include="Factories\IUserCredentialsFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\IEmbyRepository.cs" />
+    <Compile Include="Repositories\Emby\IEmbyRepository.cs" />
+    <Compile Include="Repositories\IRepository.cs" />
+    <Compile Include="Repositories\Plex\IPlexRepository.cs" />
+    <Compile Include="Services\Emby\IEmbyService.cs" />
     <Compile Include="Services\IConnectionService.cs" />
-    <Compile Include="Services\IItemSearchService.cs" />
+    <Compile Include="Services\IService.cs" />
     <Compile Include="Services\IUserCredentialsService.cs" />
+    <Compile Include="Services\Plex\IPlexService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Repositories\Exceptions\" />

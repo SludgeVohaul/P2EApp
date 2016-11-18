@@ -43,7 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionService.cs" />
-    <Compile Include="ItemSearchService.cs" />
+    <Compile Include="Emby\EmbyService.cs" />
+    <Compile Include="Plex\PlexService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserCredentialsService.cs" />
   </ItemGroup>

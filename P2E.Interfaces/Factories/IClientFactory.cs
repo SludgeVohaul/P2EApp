@@ -4,6 +4,6 @@ namespace P2E.Interfaces.Factories
 {
     public interface IClientFactory
     {
-        T CreateClient<T>(IConnectionInformation connectionInformation);
+        T CreateClient<T>(IConnectionInformation connectionInformation) where T : IClient;
     }
 }

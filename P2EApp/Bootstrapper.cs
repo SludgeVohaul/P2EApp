@@ -15,11 +15,17 @@ using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.DataObjects.Plex;
 using P2E.Interfaces.Factories;
-using P2E.Interfaces.Repositories;
+using P2E.Interfaces.Repositories.Emby;
+using P2E.Interfaces.Repositories.Plex;
 using P2E.Interfaces.Services;
+using P2E.Interfaces.Services.Emby;
+using P2E.Interfaces.Services.Plex;
 using P2E.Logging;
 using P2E.Repositories.Emby;
+using P2E.Repositories.Plex;
 using P2E.Services;
+using P2E.Services.Emby;
+using P2E.Services.Plex;
 
 namespace P2EApp
 {
@@ -53,13 +59,14 @@ namespace P2EApp
             kernel.Bind<IUserCredentialsFactory>().ToFactory();
             kernel.Bind<IConnectionInformationFactory>().ToFactory();
             kernel.Bind<IServiceFactory>().ToFactory();
-            kernel.Bind<IRepositoryFactory>().ToFactory();
 
             kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();
             kernel.Bind<IConnectionService>().To<ConnectionService>();
-            kernel.Bind<IItemSearchService>().To<ItemSearchService>();
+            kernel.Bind<IEmbyService>().To<EmbyService>();
+            kernel.Bind<IPlexService>().To<PlexService>();
 
             kernel.Bind<IEmbyRepository>().To<EmbyRepository>();
+            kernel.Bind<IPlexRepository>().To<PlexRepository>();
 
             kernel.Bind<ILogic>().To<Logic>().InSingletonScope();            
         }

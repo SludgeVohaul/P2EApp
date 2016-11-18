@@ -2,7 +2,7 @@
 
 namespace P2E.Interfaces.Services
 {
-    public interface IUserCredentialsService
+    public interface IUserCredentialsService : IService
     {
         IUserCredentials PromptForUserCredentials(IConnectionInformation connectionInformation);
     }
