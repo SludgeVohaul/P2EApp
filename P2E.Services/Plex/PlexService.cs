@@ -15,8 +15,6 @@ namespace P2E.Services.Plex
 
         public bool TryExecute(IPlexClient plexClient)
         {
-            _repository.Client = plexClient;    
-
             return true;
         }
     }

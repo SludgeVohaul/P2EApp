@@ -4,7 +4,6 @@ namespace P2E.Interfaces.Repositories.Emby
 {
     public interface IEmbyRepository : IRepository
     {
-        IEmbyClient Client { get; set; }
-        void GetStuff();
+        void GetStuff(IEmbyClient client);
     }
 }

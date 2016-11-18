@@ -15,9 +15,7 @@ namespace P2E.Services.Emby
 
         public bool TryExecute(IEmbyClient embyClient)
         {
-            _repository.Client = embyClient;
-
-            _repository.GetStuff();
+            _repository.GetStuff(embyClient);
 
             return true;
         }

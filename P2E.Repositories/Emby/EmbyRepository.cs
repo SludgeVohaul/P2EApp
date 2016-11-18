@@ -14,19 +14,18 @@ namespace P2E.Repositories.Emby
     public class EmbyRepository : IEmbyRepository
     {
         private readonly ILogger _logger;
-        public IEmbyClient Client { get; set; }
 
         public EmbyRepository(ILogger logger)
         {
             _logger = logger;
         }
 
-        public void GetStuff()
+        public void GetStuff(IEmbyClient client)
         {
             // Get the ten most recently added items for the current user.
             var query = new ItemQuery
             {
-                UserId = Client.CurrentUserId,
+                UserId = client.CurrentUserId,
 
                 SortBy = new[] {ItemSortBy.DateCreated},
                 SortOrder = SortOrder.Descending,
@@ -45,7 +44,7 @@ namespace P2E.Repositories.Emby
 
             try
             {
-                var getItemsTask = Client.GetItemsAsync(query);
+                var getItemsTask = client.GetItemsAsync(query);
 
                 getItemsTask.Wait();
                 var items = getItemsTask.Result;
@@ -57,7 +56,7 @@ namespace P2E.Repositories.Emby
                     {"ParentId", ""},
                     {"Ids", ""}
                 };
-                var colTask = Client.PostAsync<CollectionCreationResult>(Client.GetApiUrl("Collections"), args);
+                var colTask = client.PostAsync<CollectionCreationResult>(client.GetApiUrl("Collections"), args);
                 colTask.Wait();
             }
             catch (AggregateException ae)
