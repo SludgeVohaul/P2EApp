@@ -1,12 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using P2E.ExtensionMethods;
+﻿using System.Threading.Tasks;
 using MediaBrowser.Model.Logging;
 using P2E.Interfaces.DataObjects;
+using P2E.Interfaces.Services;
 
-namespace P2E.Interfaces.Services
+namespace P2E.Services
 {
     public class ConnectionService : IConnectionService  
     {
@@ -17,46 +14,32 @@ namespace P2E.Interfaces.Services
             _logger = logger;
         }
 
-        public bool TryLogin(IClient client)
+        public async Task LoginAsync(IClient client, IUserCredentials userCredentials)
         {
-            return TryLogin(client, null);
-        }
-
-        public bool TryLogin(IClient client, IUserCredentials userCredentials)
-        {
-            try
+            using (var spinWheel = new SpinWheel(_logger))
             {
-                var loginTask = client.LoginAsync(userCredentials?.Loginname, userCredentials?.Password);
-                loginTask.Wait();
-
-                return true;
-            }
-            catch (AggregateException ae)
-            {
-                ae.Flatten().InnerExceptions
-                    .ToList()
-                    .Select(e => e.GetInnermostException())
-                    .ToList()
-                    .ForEach(e => _logger.ErrorException(e.Message, e));
-
-                return false;
+                var ignoreTask = spinWheel.SpinAsync();
+                await client.LoginAsync(userCredentials?.Loginname, userCredentials?.Password);
             }
         }
 
-        public void Logout(IClient client)
+        public async Task LoginAsync(IClient client)
         {
-            try
+            // TODO use postsharp?
+            using (var spinWheel = new SpinWheel(_logger))
             {
-                var logoutTask = client.LogoutAsync();
-                logoutTask.Wait();
+                var ignoreTask = spinWheel.SpinAsync();
+                await LoginAsync(client, null);
             }
-            catch (AggregateException ae)
+        }
+
+        public async Task  LogoutAsync(IClient client)
+        {
+            
+            using (var spinWheel = new SpinWheel(_logger))
             {
-                ae.Flatten().InnerExceptions
-                    .ToList()
-                    .Select(e => e.GetInnermostException())
-                    .ToList()
-                    .ForEach(e => _logger.ErrorException(e.Message, e));
+                var ignoreTask = spinWheel.SpinAsync();
+                await client.LogoutAsync();
             }
         }
     }

@@ -6,7 +6,7 @@ namespace P2E.Services.Emby
 {
     public class EmbyService : IEmbyService
     {
-        private IEmbyRepository _repository;
+        private readonly IEmbyRepository _repository;
 
         public EmbyService(IEmbyRepository embyRepository)
         {

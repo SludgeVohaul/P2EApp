@@ -100,6 +100,10 @@
       <Project>{0ed6c794-c288-482f-8070-9b918a28c44b}</Project>
       <Name>P2E.DataObjects</Name>
     </ProjectReference>
+    <ProjectReference Include="..\P2E.ExtensionMethods\P2E.ExtensionMethods.csproj">
+      <Project>{d594dd7f-e4a5-410d-b200-5e8f8a147b68}</Project>
+      <Name>P2E.ExtensionMethods</Name>
+    </ProjectReference>
     <ProjectReference Include="..\P2E.Interfaces\P2E.Interfaces.csproj">
       <Project>{004a4c44-8bd7-4065-921c-f891cc3dbd97}</Project>
       <Name>P2E.Interfaces</Name>

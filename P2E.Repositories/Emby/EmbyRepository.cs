@@ -22,6 +22,7 @@ namespace P2E.Repositories.Emby
 
         public void GetStuff(IEmbyClient client)
         {
+            // TODO cleanup
             // Get the ten most recently added items for the current user.
             var query = new ItemQuery
             {

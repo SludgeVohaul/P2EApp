@@ -1,11 +1,13 @@
-﻿using P2E.Interfaces.DataObjects;
+﻿using System.Threading.Tasks;
+using P2E.Interfaces.DataObjects;
 
 namespace P2E.Interfaces.Services
 {
     public interface IConnectionService : IService
     {
-        bool TryLogin(IClient embyClient);
-        bool TryLogin(IClient embyClient, IUserCredentials userCredentials);
-        void Logout(IClient embyClient);
+        Task LoginAsync(IClient client, IUserCredentials userCredentials);
+        Task LoginAsync(IClient client);
+
+        Task LogoutAsync(IClient client);
     }
 }

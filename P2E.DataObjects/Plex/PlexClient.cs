@@ -8,11 +8,13 @@ namespace P2E.DataObjects.Plex
 {
     public class PlexClient : RestClient, IPlexClient
     {
+        private readonly ILogger _logger;
         public IConnectionInformation ConnectionInformation { get; }
 
         public PlexClient(ILogger logger, IConnectionInformation connectionInformation)
             : base(connectionInformation.ServerUrl)
         {
+            _logger = logger;
             ConnectionInformation = connectionInformation;
         }
 

@@ -6,7 +6,7 @@ using P2E.Interfaces.CommandLine;
 
 namespace P2EApp
 {
-    class Program
+    internal static class Program
     {
         static void Main(string[] args)
         {
@@ -22,11 +22,11 @@ namespace P2EApp
                     return;
                 }
 
-                kernel.Get<ILogic>().Run();
+                kernel.Get<ILogic>().RunAsync().Wait();
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("====================== " + ex.Message);
             }
             finally
             {

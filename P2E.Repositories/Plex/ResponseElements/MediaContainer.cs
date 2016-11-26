@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace P2E.DataObjects.Plex.ResponseElements
+namespace P2E.Repositories.Plex.ResponseElements
 {
     public class MediaContainer
     {

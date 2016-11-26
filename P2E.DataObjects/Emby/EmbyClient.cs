@@ -9,7 +9,7 @@ using P2E.Interfaces.DataObjects.Emby;
 namespace P2E.DataObjects.Emby
 {
     public class EmbyClient : ApiClient, IEmbyClient
-    {
+    { 
         public IConnectionInformation ConnectionInformation { get; }
 
         public EmbyClient(ILogger logger, IDevice device, ICryptographyProvider cryptographyProvider, IConnectionInformation connectionInformation, IApplicationInformation applicationInformation)
@@ -20,8 +20,8 @@ namespace P2E.DataObjects.Emby
 
         public async Task LoginAsync(string loginname, string password)
         {
-            // todo -  handle null values.
-            var authTask = await AuthenticateUserAsync(loginname, password);
+            // TODO -  handle null values
+            await AuthenticateUserAsync(loginname, password);
         }
 
         public async Task LogoutAsync()

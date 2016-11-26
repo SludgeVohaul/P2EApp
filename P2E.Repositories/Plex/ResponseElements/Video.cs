@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using RestSharp.Deserializers;
 
-namespace P2E.DataObjects.Plex.ResponseElements
+namespace P2E.Repositories.Plex.ResponseElements
 {
     public class Video
     {

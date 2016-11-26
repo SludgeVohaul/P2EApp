@@ -62,11 +62,7 @@
     <Compile Include="ConnectionInformation.cs" />
     <Compile Include="Emby\EmbyClient.cs" />
     <Compile Include="Emby\Device.cs" />
-    <Compile Include="Plex\ResponseElements\Collection.cs" />
-    <Compile Include="Plex\ResponseElements\Directory.cs" />
     <Compile Include="Plex\PlexClient.cs" />
-    <Compile Include="Plex\ResponseElements\MediaContainer.cs" />
-    <Compile Include="Plex\ResponseElements\Video.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserCredentials.cs" />
   </ItemGroup>
