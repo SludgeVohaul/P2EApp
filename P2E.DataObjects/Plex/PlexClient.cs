@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using MediaBrowser.Model.Logging;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Plex;
 using RestSharp;
@@ -8,25 +7,27 @@ namespace P2E.DataObjects.Plex
 {
     public class PlexClient : RestClient, IPlexClient
     {
-        private readonly ILogger _logger;
         public IConnectionInformation ConnectionInformation { get; }
+        public string AccessToken { get; private set; }
 
-        public PlexClient(ILogger logger, IConnectionInformation connectionInformation)
+        public PlexClient(IConnectionInformation connectionInformation)
             : base(connectionInformation.ServerUrl)
         {
-            _logger = logger;
             ConnectionInformation = connectionInformation;
         }
 
-        public async Task LoginAsync(string loginname, string password)
+        public async Task<bool> TryLoginAsync(string loginname, string password)
         {
+            AccessToken = "";
             // Do nothing here, as plex auth is not supported.
-            await Task.FromResult(0);
+            return await Task.Run(() => true);
+            
         }
         public async Task LogoutAsync()
         {
+            AccessToken = null;
             // Do nothing here, as plex auth is not supported.
-            await Task.FromResult(0);
+            await Task.Run(() => { });
         }
 
     }

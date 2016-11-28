@@ -63,6 +63,7 @@
     <Compile Include="DataObjects\Emby\IEmbyClient.cs" />
     <Compile Include="DataObjects\IUserCredentials.cs" />
     <Compile Include="DataObjects\Plex\IPlexClient.cs" />
+    <Compile Include="DataObjects\Plex\Library\IPlexMovieMetadata.cs" />
     <Compile Include="Factories\IConnectionInformationFactory.cs" />
     <Compile Include="Factories\IClientFactory.cs" />
     <Compile Include="Factories\IServiceFactory.cs" />

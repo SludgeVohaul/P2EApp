@@ -1,10 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using MediaBrowser.Model.Logging;
 using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine;
 using P2E.Interfaces.CommandLine.ServerOptions;
+using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.DataObjects.Plex;
+using P2E.Interfaces.DataObjects.Plex.Library;
 using P2E.Interfaces.Factories;
 using P2E.Interfaces.Services;
 using P2E.Interfaces.Services.Emby;
@@ -47,31 +51,27 @@ namespace P2E.AppLogic
 
             var embyUserCredentials = _userCredentialsService.PromptForUserCredentials(_embyClient.ConnectionInformation);
             //var plexUserCredentials = _userCredentialsService.PromptForUserCredentials(_plexClient.ConnectionInformation);
+            IUserCredentials plexUserCredentials = null;
 
-            await _connectionService.LoginAsync(_embyClient, embyUserCredentials);
-            await _connectionService.LoginAsync(_plexClient);
-            _logger.Debug("bin nach beiden loginasync");
+            var spinWheel = new SpinWheel(_logger);
 
             try
             {
+                if (await LoginClients(spinWheel, _embyClient, embyUserCredentials, _plexClient, plexUserCredentials) == false) return;
+
                 // TODO - handle RemoteLoggedOut?
                 //_embyClient.RemoteLoggedOut += EmbyClient_RemoteLoggedOut;
 
                 //_embyService.TryExecute(_embyClient);
 
-                var plexLibraryUrl = await _plexService.GetLibraryUrlAsync(_plexClient, _consoleLibraryOptions.PlexLibraryName);
+                var movieMetadataItems = await GetPlexMetadata(spinWheel, _plexClient, _consoleLibraryOptions.PlexLibraryName);
+                //movieMetadataItems.ForEach(x => _logger.Debug($"{x.OriginalTitle}"));
 
-                if (plexLibraryUrl == null)
-                {
-                    _logger.Error($"Plex movie library '{_consoleLibraryOptions.PlexLibraryName}' not found!");
-                    return;
-                }
                 _logger.Info("Logic done.");
             }
             finally
             {
-               await  _connectionService.LogoutAsync(_embyClient);
-               await _connectionService.LogoutAsync(_plexClient);
+                await LogoutClients(spinWheel, _embyClient, _plexClient);
             }
         }
 
@@ -82,13 +82,105 @@ namespace P2E.AppLogic
             _embyService = _serviceFactory.CreateService<IEmbyService>();
             _plexService = _serviceFactory.CreateService<IPlexService>();
 
-            var connectionInformationEmby1 =
-                _connectionInformationFactory.CreateConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>();
-            var connectionInformationPlex1 =
-                _connectionInformationFactory.CreateConnectionInformation<IConsolePlexInstance1ConnectionOptions>();
+            var connectionInformationEmby1 = _connectionInformationFactory
+                .CreateConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>();
+            var connectionInformationPlex1 = _connectionInformationFactory
+                .CreateConnectionInformation<IConsolePlexInstance1ConnectionOptions>();
 
             _embyClient = _clientFactory.CreateClient<IEmbyClient>(connectionInformationEmby1);
             _plexClient = _clientFactory.CreateClient<IPlexClient>(connectionInformationPlex1);
+        }
+
+        private async Task<List<IPlexMovieMetadata>> GetPlexMetadata(SpinWheel spinWheel, IPlexClient plexClient, string plexLibraryName)
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                var spinTask = spinWheel.SpinAsync(cts.Token);
+                try
+                {
+                    var plexLibraryUrl = await _plexService.GetLibraryUrlAsync(plexClient, plexLibraryName);
+                    if (plexLibraryUrl == null)
+                    {
+                        _logger.Error($"Plex movie library '{plexLibraryName}' not found!");
+                        return null;
+                    }
+                    _logger.Info("Plex movie library found.");
+                    return await _plexService.GetMovieMetadataAsync(plexClient, plexLibraryUrl);
+                }
+                finally
+                {
+                    cts.Cancel();
+                    await spinTask;
+                    _logger.Debug($"Duration: {spinWheel.SpinDuration}ms");
+                }
+            }
+        }
+
+        private async Task<bool> LoginClients(SpinWheel spinWheel, IClient embyClient, IUserCredentials embyUserCredentials,
+            IClient plexClient, IUserCredentials plexUserCredentials)
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                var spinTask = spinWheel.SpinAsync(cts.Token);
+                try
+                {
+                    if (await _connectionService.TryLoginAsync(embyClient, embyUserCredentials))
+                    {
+                        _logger.Info("Emby login OK");
+                    }
+                    else
+                    {
+                        _logger.Error("Emby login failed.");
+                        return false;
+                    }
+
+                    if (await _connectionService.TryLoginAsync(plexClient, plexUserCredentials))
+                    {
+                        _logger.Info("Plex login OK");
+                    }
+                    else
+                    {
+                        _logger.Error("Plex login failed.");
+                        return false;
+                    }
+
+                    return true;
+                }
+                finally
+                {
+                    cts.Cancel();
+                    await spinTask;
+                    _logger.Debug($"Duration: {spinWheel.SpinDuration}ms");
+                }
+            }
+        }
+
+        private async Task LogoutClients(SpinWheel spinWheel, IClient embyClient, IClient plexClient)
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                var spinTask = spinWheel.SpinAsync(cts.Token);
+                try
+                {
+                    if (_embyClient.AccessToken != null)
+                    {
+                        await _connectionService.LogoutAsync(embyClient);
+                        _logger.Info("Disconnected from Emby.");
+                    }
+
+                    if (_plexClient.AccessToken != null)
+                    {
+                        await _connectionService.LogoutAsync(plexClient);
+                        _logger.Info("Disconnected from Plex.");
+                    }
+                }
+                finally
+                {
+                    cts.Cancel();
+                    await spinTask;
+                    _logger.Debug($"Duration: {spinWheel.SpinDuration}ms");
+                }
+            }
         }
     }
 }

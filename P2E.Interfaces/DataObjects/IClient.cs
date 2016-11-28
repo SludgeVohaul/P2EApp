@@ -7,7 +7,7 @@ namespace P2E.Interfaces.DataObjects
     {
         IConnectionInformation ConnectionInformation { get; }
 
-        Task LoginAsync(string loginname, string password);
+        Task<bool> TryLoginAsync(string loginname, string password);
         Task LogoutAsync();
     }
 }

@@ -50,14 +50,9 @@
     <Compile Include="Emby\EmbyService.cs" />
     <Compile Include="Plex\PlexService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpinWheel.cs" />
     <Compile Include="UserCredentialsService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\P2E.ExtensionMethods\P2E.ExtensionMethods.csproj">
-      <Project>{d594dd7f-e4a5-410d-b200-5e8f8a147b68}</Project>
-      <Name>P2E.ExtensionMethods</Name>
-    </ProjectReference>
     <ProjectReference Include="..\P2E.Interfaces\P2E.Interfaces.csproj">
       <Project>{004a4c44-8bd7-4065-921c-f891cc3dbd97}</Project>
       <Name>P2E.Interfaces</Name>

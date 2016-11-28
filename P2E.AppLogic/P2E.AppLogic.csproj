@@ -56,8 +56,13 @@
   <ItemGroup>
     <Compile Include="Logic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpinWheel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\P2E.ExtensionMethods\P2E.ExtensionMethods.csproj">
+      <Project>{D594DD7F-E4A5-410D-B200-5E8F8A147B68}</Project>
+      <Name>P2E.ExtensionMethods</Name>
+    </ProjectReference>
     <ProjectReference Include="..\P2E.Interfaces\P2E.Interfaces.csproj">
       <Project>{004a4c44-8bd7-4065-921c-f891cc3dbd97}</Project>
       <Name>P2E.Interfaces</Name>

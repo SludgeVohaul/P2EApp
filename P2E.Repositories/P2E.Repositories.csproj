@@ -55,6 +55,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\P2E.DataObjects\P2E.DataObjects.csproj">
+      <Project>{0ED6C794-C288-482F-8070-9B918A28C44B}</Project>
+      <Name>P2E.DataObjects</Name>
+    </ProjectReference>
     <ProjectReference Include="..\P2E.ExtensionMethods\P2E.ExtensionMethods.csproj">
       <Project>{d594dd7f-e4a5-410d-b200-5e8f8a147b68}</Project>
       <Name>P2E.ExtensionMethods</Name>

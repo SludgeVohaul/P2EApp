@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using CommandLine;
 using Ninject;
+using P2E.ExtensionMethods;
 using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine;
 
@@ -23,6 +25,16 @@ namespace P2EApp
                 }
 
                 kernel.Get<ILogic>().RunAsync().Wait();
+            }
+            catch (AggregateException ae)
+            {
+                var messages = ae.Flatten().InnerExceptions
+                    .ToList()
+                    .Select(e => e.GetInnermostException())
+                    .Select(e => (object)e.Message)
+                    .ToArray();
+
+                Console.WriteLine("Oops, you did something I didn't think of:\n{0}", messages);
             }
             catch (Exception ex)
             {
