@@ -6,14 +6,16 @@ namespace P2E.Services
 {
     public class ConnectionService : IConnectionService  
     {
-        public async Task<bool> TryLoginAsync(IClient client, IUserCredentials userCredentials)
+        public async Task LoginAsync(IClient client, IUserCredentials userCredentials)
         {
-            return await client.TryLoginAsync(userCredentials?.Loginname, userCredentials?.Password);
+            await client.LoginAsync(userCredentials?.Loginname, userCredentials?.Password);
         }
 
         public async Task LogoutAsync(IClient client)
         {
             await client.LogoutAsync();
         }
+
+
     }
 }

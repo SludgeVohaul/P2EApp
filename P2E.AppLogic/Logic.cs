@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Model.Logging;
@@ -65,7 +66,9 @@ namespace P2E.AppLogic
                 //_embyService.TryExecute(_embyClient);
 
                 var movieMetadataItems = await GetPlexMetadata(spinWheel, _plexClient, _consoleLibraryOptions.PlexLibraryName);
-                //movieMetadataItems.ForEach(x => _logger.Debug($"{x.OriginalTitle}"));
+                if (movieMetadataItems == null) return;
+
+                movieMetadataItems.ForEach(x => _logger.Debug($"{x.OriginalTitle}"));
 
                 _logger.Info("Logic done.");
             }
@@ -91,21 +94,43 @@ namespace P2E.AppLogic
             _plexClient = _clientFactory.CreateClient<IPlexClient>(connectionInformationPlex1);
         }
 
-        private async Task<List<IPlexMovieMetadata>> GetPlexMetadata(SpinWheel spinWheel, IPlexClient plexClient, string plexLibraryName)
+        private async Task<List<IPlexMovieMetadata>> GetPlexMetadata(SpinWheel spinWheel, IPlexClient plexClient,
+            string plexLibraryName)
         {
             using (var cts = new CancellationTokenSource())
             {
                 var spinTask = spinWheel.SpinAsync(cts.Token);
                 try
                 {
-                    var plexLibraryUrl = await _plexService.GetLibraryUrlAsync(plexClient, plexLibraryName);
-                    if (plexLibraryUrl == null)
+                    string libraryUrl;
+                    try
                     {
-                        _logger.Error($"Plex movie library '{plexLibraryName}' not found!");
+                        libraryUrl = await _plexService.GetLibraryUrlAsync(plexClient, plexLibraryName);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.ErrorException($"Failed to retrieve Plex library \"{plexLibraryName}\":", ex, ex.Message);
                         return null;
                     }
-                    _logger.Info("Plex movie library found.");
-                    return await _plexService.GetMovieMetadataAsync(plexClient, plexLibraryUrl);
+
+                    if (libraryUrl == null)
+                    {
+                        _logger.Error($"Library {plexLibraryName} not found!");
+                        return null;
+                    }
+
+                    List<IPlexMovieMetadata> movieMetadataList;
+                    try
+                    {
+                        movieMetadataList = await _plexService.GetMovieMetadataAsync(plexClient, libraryUrl);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.ErrorException($"Failed to retrieve metadata for Plex library \"{plexLibraryName}\":", ex, ex.Message);
+                        return null;
+                    }
+
+                    return movieMetadataList;
                 }
                 finally
                 {
@@ -116,7 +141,8 @@ namespace P2E.AppLogic
             }
         }
 
-        private async Task<bool> LoginClients(SpinWheel spinWheel, IClient embyClient, IUserCredentials embyUserCredentials,
+        private async Task<bool> LoginClients(SpinWheel spinWheel, IClient embyClient,
+            IUserCredentials embyUserCredentials,
             IClient plexClient, IUserCredentials plexUserCredentials)
         {
             using (var cts = new CancellationTokenSource())
@@ -124,23 +150,23 @@ namespace P2E.AppLogic
                 var spinTask = spinWheel.SpinAsync(cts.Token);
                 try
                 {
-                    if (await _connectionService.TryLoginAsync(embyClient, embyUserCredentials))
+                    try
                     {
-                        _logger.Info("Emby login OK");
+                        await _connectionService.LoginAsync(embyClient, embyUserCredentials);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        _logger.Error("Emby login failed.");
+                        _logger.ErrorException("Emby login failed:", ex, ex.Message);
                         return false;
                     }
 
-                    if (await _connectionService.TryLoginAsync(plexClient, plexUserCredentials))
+                    try
                     {
-                        _logger.Info("Plex login OK");
+                        await _connectionService.LoginAsync(plexClient, plexUserCredentials);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        _logger.Error("Plex login failed.");
+                        _logger.ErrorException("Plex login failed:", ex, ex.Message);
                         return false;
                     }
 

@@ -49,8 +49,6 @@ namespace P2E.AppLogic
                         while (cancellationToken.IsCancellationRequested == false)
                         {
                             spinPosition++;
-                            // TODO remove
-                            //var bla = new DateTime(543435543, 1, 1, 1, 1, 1);
                             Console.Write(_spinPositions[spinPosition%4]);
                             Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
                             // Bypass Sleep() for better timing results.
@@ -64,8 +62,7 @@ namespace P2E.AppLogic
                     {
                         // Catch exceptions here.
                         // See https://blogs.msdn.microsoft.com/ptorr/2014/12/10/async-exceptions-in-c/
-                        // TODO - ex.Message is not being logged.
-                        _logger.ErrorException("Spinwheel is broken", ex, ex.Message);
+                        _logger.ErrorException("Spinwheel is broken:", ex, ex.Message);
                         StartTime = DateTime.MinValue;
                         StopTime = DateTime.MinValue;
                     }

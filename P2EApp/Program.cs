@@ -38,14 +38,13 @@ namespace P2EApp
             }
             catch (Exception ex)
             {
-                Console.WriteLine("====================== " + ex.Message);
+                Console.WriteLine("Oops, you did something I didn't think of:\n{0}", ex.Message);
             }
             finally
             {
                 // todo - remove the whole finally block
                 Console.ReadLine();
             }
-
         }
     }
 }

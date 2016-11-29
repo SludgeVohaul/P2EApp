@@ -16,12 +16,11 @@ namespace P2E.DataObjects.Plex
             ConnectionInformation = connectionInformation;
         }
 
-        public async Task<bool> TryLoginAsync(string loginname, string password)
+        public async Task LoginAsync(string loginname, string password)
         {
             AccessToken = "";
             // Do nothing here, as plex auth is not supported.
-            return await Task.Run(() => true);
-            
+            await Task.Run(() => { });
         }
         public async Task LogoutAsync()
         {

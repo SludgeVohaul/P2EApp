@@ -14,7 +14,6 @@ namespace P2E.Repositories.Plex
     {
         public async Task<string> GetLibraryUrlAsync(IPlexClient client, string libraryName)
         {
-            //return await DoSleepAsync();
             var request = new RestRequest("library/sections/all", Method.GET);
             var response = await client.ExecuteTaskAsync<MediaContainer>(request);
 
@@ -30,9 +29,6 @@ namespace P2E.Repositories.Plex
 
         public async Task<List<IPlexMovieMetadata>> GetMovieMetadataAsync(IPlexClient client, string libraryUrl)
         {
-            //await DoSleepAsync();
-            // TODO remove
-            //var bla = new DateTime(342424324, 1, 1, 1, 1, 1);
             var request = new RestRequest(libraryUrl, Method.GET);
             var response = await client.ExecuteTaskAsync<MediaContainer>(request);
 
@@ -47,12 +43,5 @@ namespace P2E.Repositories.Plex
                 } as IPlexMovieMetadata)
                 .ToList();
         }
-
-        // TODO remove
-        //private async Task<string> DoSleepAsync()
-        //{
-        //    await Task.Delay(4000);
-        //    return "25";
-        //}
     }
 }
