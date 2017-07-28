@@ -30,16 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MediaBrowser.Common, Version=3.1.6156.24460, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MediaBrowser.Common.3.0.688\lib\portable-net45+win8+wpa81\MediaBrowser.Common.dll</HintPath>
+    <Reference Include="MediaBrowser.Common, Version=3.2.25.11, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MediaBrowser.Common.3.0.708\lib\portable-net45+win8+wpa81\MediaBrowser.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MediaBrowser.Model, Version=3.1.6156.24459, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MediaBrowser.Common.3.0.688\lib\portable-net45+win8+wpa81\MediaBrowser.Model.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="MediaBrowser.Model, Version=3.2.25.11, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MediaBrowser.Common.3.0.708\lib\portable-net45+win8+wpa81\MediaBrowser.Model.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
@@ -48,28 +44,15 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="WebSocket4Net, Version=0.14.1.0, Culture=neutral, PublicKeyToken=eb4e154b696bf72a, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSocket4Net.0.14.1\lib\net45\WebSocket4Net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Logic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpinWheel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\P2E.ExtensionMethods\P2E.ExtensionMethods.csproj">
-      <Project>{D594DD7F-E4A5-410D-B200-5E8F8A147B68}</Project>
-      <Name>P2E.ExtensionMethods</Name>
-    </ProjectReference>
     <ProjectReference Include="..\P2E.Interfaces\P2E.Interfaces.csproj">
       <Project>{004a4c44-8bd7-4065-921c-f891cc3dbd97}</Project>
       <Name>P2E.Interfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\P2E.Services\P2E.Services.csproj">
-      <Project>{8C13EF0E-EA78-4647-B075-7E1DCD87E822}</Project>
-      <Name>P2E.Services</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

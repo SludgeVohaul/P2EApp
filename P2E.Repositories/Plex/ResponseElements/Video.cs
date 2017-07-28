@@ -6,6 +6,7 @@ namespace P2E.Repositories.Plex.ResponseElements
     public class Video
     {
         public List<Collection> Collections { get; set; }
+        public List<Media> Medias { get; set; }
 
         [DeserializeAs(Name = "originalTitle")]
         public string OriginalTitle { get; set; }

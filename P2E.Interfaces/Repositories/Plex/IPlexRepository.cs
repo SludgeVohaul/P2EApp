@@ -7,7 +7,7 @@ namespace P2E.Interfaces.Repositories.Plex
 {
     public interface IPlexRepository : IRepository
     {
-        Task<string> GetLibraryUrlAsync(IPlexClient client, string libraryName);
-        Task<List<IPlexMovieMetadata>> GetMovieMetadataAsync(IPlexClient client, string libraryUrl);
+        Task<string> GetLibraryIdAsync(IPlexClient client, string libraryName);
+        Task<List<IPlexMovieMetadata>> GetMovieLibraryMetadataAsync(IPlexClient client, string libraryId);
     }
 }

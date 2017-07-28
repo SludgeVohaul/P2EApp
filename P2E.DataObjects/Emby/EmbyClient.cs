@@ -2,30 +2,50 @@
 using Emby.ApiInteraction;
 using Emby.ApiInteraction.Cryptography;
 using MediaBrowser.Model.ApiClient;
-using MediaBrowser.Model.Logging;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
+using P2E.Interfaces.Logging;
+using P2E.Interfaces.Services;
 
 namespace P2E.DataObjects.Emby
 {
     public class EmbyClient : ApiClient, IEmbyClient
     {
-        public IConnectionInformation ConnectionInformation { get; }
+        private IUserCredentials _userCredentials;
+        private readonly IConnectionInformation _connectionInformation;
 
-        public EmbyClient(ILogger logger, IDevice device, ICryptographyProvider cryptographyProvider, IConnectionInformation connectionInformation, IApplicationInformation applicationInformation)
-            : base(logger, connectionInformation.ServerUrl, applicationInformation.Name, device, applicationInformation.Version, cryptographyProvider)
+        public string ServerType { get; } = "Emby";
+
+        public EmbyClient(IAppLogger logger, IDevice device, ICryptographyProvider cryptographyProvider,
+            IConnectionInformation connectionInformation, IApplicationInformation applicationInformation)
+            : base(
+                logger, connectionInformation.ServerUrl, applicationInformation.Name, device,
+                applicationInformation.Version, cryptographyProvider)
         {
-            ConnectionInformation = connectionInformation;
+            _connectionInformation = connectionInformation;
         }
 
-        public async Task LoginAsync(string loginname, string password)
+        public void SetLoginData(IUserCredentialsService userCredentialsService)
         {
-            await AuthenticateUserAsync(loginname, password);
+            _userCredentials = userCredentialsService?.PromptForUserCredentials(_connectionInformation, ServerType);
+        }
+
+        public async Task LoginAsync()
+        {
+            var authResult = await AuthenticateUserAsync(_userCredentials?.Loginname, _userCredentials?.Password);
+            SetAuthenticationInfo(authResult.AccessToken, authResult.User.Id);
         }
 
         public async Task LogoutAsync()
         {
-            await Logout();
+            if (AccessToken != null)
+            {
+                await Logout();
+            }
+            else
+            {
+                await Task.Run(() => { });
+            }
         }
     }
 }

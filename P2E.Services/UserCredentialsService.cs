@@ -15,11 +15,11 @@ namespace P2E.Services
             _userCredentialsFactory = userCredentialsFactory;
         }
 
-        public IUserCredentials PromptForUserCredentials(IConnectionInformation connectionInformation)
+        public IUserCredentials PromptForUserCredentials(IConnectionInformation connectionInformation, string serverType)
         {
             var userCredentials = _userCredentialsFactory.CreateUserCredentials();
 
-            Console.Out.Write($"{connectionInformation.IpAddress} username: ", connectionInformation.IpAddress);
+            Console.Out.Write($"{serverType} ({connectionInformation.IpAddress}) username: ", connectionInformation.IpAddress);
             userCredentials.Loginname = Console.ReadLine();
             Console.Out.Write($"{userCredentials.Loginname}@{connectionInformation.IpAddress}'s password: ");
             userCredentials.Password = GetPassword();

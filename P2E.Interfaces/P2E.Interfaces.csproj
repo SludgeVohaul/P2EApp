@@ -34,12 +34,12 @@
       <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MediaBrowser.Common, Version=3.1.6156.24460, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MediaBrowser.Common.3.0.688\lib\portable-net45+win8+wpa81\MediaBrowser.Common.dll</HintPath>
+    <Reference Include="MediaBrowser.Common, Version=3.2.25.11, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MediaBrowser.Common.3.0.708\lib\portable-net45+win8+wpa81\MediaBrowser.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MediaBrowser.Model, Version=3.1.6156.24459, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MediaBrowser.Common.3.0.688\lib\portable-net45+win8+wpa81\MediaBrowser.Model.dll</HintPath>
+    <Reference Include="MediaBrowser.Model, Version=3.2.25.11, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MediaBrowser.Common.3.0.708\lib\portable-net45+win8+wpa81\MediaBrowser.Model.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
@@ -68,19 +68,21 @@
     <Compile Include="Factories\IClientFactory.cs" />
     <Compile Include="Factories\IServiceFactory.cs" />
     <Compile Include="Factories\IUserCredentialsFactory.cs" />
+    <Compile Include="Logging\IAppLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Emby\IEmbyRepository.cs" />
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Repositories\Plex\IPlexRepository.cs" />
     <Compile Include="Services\Emby\IEmbyService.cs" />
-    <Compile Include="Services\IConnectionService.cs" />
     <Compile Include="Services\IService.cs" />
+    <Compile Include="Services\Plex\Exceptions\ResponseFailureException.cs" />
+    <Compile Include="Services\Plex\Exceptions\UnexpectedHttpStatusCodeException.cs" />
+    <Compile Include="Services\SpinWheel\ISpinWheel.cs" />
+    <Compile Include="Services\SpinWheel\ISpinWheelService.cs" />
     <Compile Include="Services\IUserCredentialsService.cs" />
     <Compile Include="Services\Plex\IPlexService.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Repositories\Exceptions\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

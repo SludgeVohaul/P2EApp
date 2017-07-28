@@ -1,6 +1,5 @@
 ﻿using Emby.ApiInteraction.Cryptography;
 using MediaBrowser.Model.ApiClient;
-using MediaBrowser.Model.Logging;
 using Ninject;
 using Ninject.Extensions.Factory;
 using P2E.AppLogic;
@@ -15,17 +14,21 @@ using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.DataObjects.Plex;
 using P2E.Interfaces.Factories;
+using P2E.Interfaces.Logging;
 using P2E.Interfaces.Repositories.Emby;
 using P2E.Interfaces.Repositories.Plex;
 using P2E.Interfaces.Services;
 using P2E.Interfaces.Services.Emby;
 using P2E.Interfaces.Services.Plex;
+using P2E.Interfaces.Services.SpinWheel;
 using P2E.Logging;
 using P2E.Repositories.Emby;
 using P2E.Repositories.Plex;
 using P2E.Services;
 using P2E.Services.Emby;
 using P2E.Services.Plex;
+using P2E.Services.SpinWheel;
+
 
 namespace P2EApp
 {
@@ -35,12 +38,12 @@ namespace P2EApp
         {
             kernel.Bind(
                 typeof(IConsoleOptions),
-                typeof(IConsoleEmbyInstance1ConnectionOptions), 
+                typeof(IConsoleEmbyInstance1ConnectionOptions),
                 typeof(IConsolePlexInstance1ConnectionOptions),
                 typeof(IConsoleLibraryOptions),
                 typeof(IConsoleSyncOptions)).To<ConsoleOptions>().InSingletonScope();
 
-            kernel.Bind<ILogger>().To<ConsoleLogger>().InSingletonScope();
+            kernel.Bind<IAppLogger>().To<ConsoleLogger>().InSingletonScope();
 
             kernel.Bind<IConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>>().To<ConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>>();
             kernel.Bind<IConnectionInformation<IConsolePlexInstance1ConnectionOptions>>().To<ConnectionInformation<IConsolePlexInstance1ConnectionOptions>>();
@@ -52,6 +55,8 @@ namespace P2EApp
 
             kernel.Bind<IApplicationInformation>().To<ApplicationInformation>().InSingletonScope();
 
+            kernel.Bind<ISpinWheel>().To<SpinWheel>().InSingletonScope();
+
             kernel.Bind<IEmbyClient>().To<EmbyClient>();
             kernel.Bind<IPlexClient>().To<PlexClient>();
 
@@ -61,14 +66,15 @@ namespace P2EApp
             kernel.Bind<IServiceFactory>().ToFactory();
 
             kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();
-            kernel.Bind<IConnectionService>().To<ConnectionService>();
             kernel.Bind<IEmbyService>().To<EmbyService>();
             kernel.Bind<IPlexService>().To<PlexService>();
+            kernel.Bind<ISpinWheelService>().To<SpinWheelService>().InSingletonScope();
+
 
             kernel.Bind<IEmbyRepository>().To<EmbyRepository>();
             kernel.Bind<IPlexRepository>().To<PlexRepository>();
 
-            kernel.Bind<ILogic>().To<Logic>().InSingletonScope();            
+            kernel.Bind<ILogic>().To<Logic>().InSingletonScope();
         }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 using System.Threading;
 using MediaBrowser.Model.Logging;
+using P2E.Interfaces.Logging;
 
 namespace P2E.Logging
 {
-    public class ConsoleLogger : ILogger
+    public class ConsoleLogger : IAppLogger
     {
         private static readonly SemaphoreSlim SemSlim = new SemaphoreSlim(1, 1);
 
@@ -61,11 +63,11 @@ namespace P2E.Logging
             {
                 if (paramList.Length == 0)
                 {
-                    Console.Error.WriteLine(message);
+                    Console.Error.WriteLine($"{GetTimestamp()} {message}");
                     return;
                 }
 
-                Console.Error.WriteLine($"{message}\n{{0}}", paramList);
+                Console.Error.WriteLine($"{GetTimestamp()} {message}\n{{0}}", paramList);
             }
             finally
             {
@@ -80,16 +82,21 @@ namespace P2E.Logging
             {
                 if (paramList.Length == 0)
                 {
-                    Console.Out.WriteLine(message);
+                    Console.Out.WriteLine($"{GetTimestamp()} {message}");
                     return;
                 }
 
-                Console.Out.WriteLine($"{message}\n{{0}}", paramList);
+                Console.Out.WriteLine($"{GetTimestamp()} {message}\n{{0}}", paramList);
             }
             finally
             {
                 SemSlim.Release();
             }
+        }
+
+        private string GetTimestamp()
+        {
+            return DateTime.UtcNow.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
         }
     }
 }
