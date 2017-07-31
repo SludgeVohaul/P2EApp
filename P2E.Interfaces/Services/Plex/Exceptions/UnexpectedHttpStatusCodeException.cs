@@ -6,10 +6,10 @@ namespace P2E.Interfaces.Services.Plex.Exceptions
 {
     public class UnexpectedHttpStatusCodeException : Exception
     {
-        public HttpStatusCode StatusCode { get; set; }
-        public long ResponseDuration { get; set; }
-        public Method RequestMethod { get; set; }
-        public Uri ResponseUri { get; set; }
+        public HttpStatusCode StatusCode { get; }
+        public long ResponseDuration { get; }
+        public Method RequestMethod { get; }
+        public Uri ResponseUri { get; }
 
         public UnexpectedHttpStatusCodeException(string message, HttpStatusCode statusCode, long responseDuration, Method requestMethod, Uri responseUri) : base(message)
         {

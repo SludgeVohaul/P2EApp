@@ -5,8 +5,8 @@ namespace P2E.Interfaces.Services.Plex.Exceptions
 {
     public class ResponseFailureException : Exception
     {
-        public Method RequestMethod { get; set; }
-        public Uri RequestUri { get; set; }
+        public Method RequestMethod { get; }
+        public Uri RequestUri { get; }
 
         public ResponseFailureException(string message, Method requestMethod, Uri requestUri, Exception exception) : base(message, exception)
         {
