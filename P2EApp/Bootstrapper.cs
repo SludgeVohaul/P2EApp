@@ -1,5 +1,4 @@
-﻿using AppConsole;
-using Emby.ApiInteraction.Cryptography;
+﻿using Emby.ApiInteraction.Cryptography;
 using MediaBrowser.Model.ApiClient;
 using Ninject;
 using Ninject.Extensions.Factory;
@@ -8,7 +7,6 @@ using P2E.CommandLine;
 using P2E.DataObjects;
 using P2E.DataObjects.Emby;
 using P2E.DataObjects.Plex;
-using P2E.Interfaces.AppConsole;
 using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine;
 using P2E.Interfaces.CommandLine.ServerOptions;
@@ -58,8 +56,6 @@ namespace P2EApp
             kernel.Bind<IApplicationInformation>().To<ApplicationInformation>().InSingletonScope();
 
             kernel.Bind<ISpinWheel>().To<SpinWheel>().InSingletonScope();
-
-            kernel.Bind<IConsoleLock>().To<ConsoleLock>().InSingletonScope();
 
             kernel.Bind<IEmbyClient>().To<EmbyClient>();
             kernel.Bind<IPlexClient>().To<PlexClient>();

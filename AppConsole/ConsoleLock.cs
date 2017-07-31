@@ -1,9 +1,7 @@
-﻿using P2E.Interfaces.AppConsole;
-
-namespace AppConsole
+﻿namespace AppConsole
 {
-    public class ConsoleLock : IConsoleLock
+    public abstract class ConsoleLock
     {
-        public object LockObject { get; } = new object();
+        protected static readonly object ConsoleLockObject = new object();
     }
 }

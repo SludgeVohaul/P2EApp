@@ -1,27 +1,25 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using P2E.Interfaces.AppConsole;
+using AppConsole;
 using P2E.Interfaces.Logging;
 using P2E.Interfaces.Services.SpinWheel;
 
 namespace P2E.Services.SpinWheel
 {
-    public class SpinWheel : ISpinWheel
+    public class SpinWheel : ConsoleLock, ISpinWheel
     {
         private readonly object _itemCountLockObject = new object();
 
         private readonly IAppLogger _logger;
-        private readonly IConsoleLock _consoleLock;
 
         private readonly string[] _spinPositions = { "|", "/", "-", @"\" };
 
         private int _processedItemsCount;
 
-        public SpinWheel(IAppLogger logger, IConsoleLock consoleLock)
+        public SpinWheel(IAppLogger logger)
         {
             _logger = logger;
-            _consoleLock = consoleLock;
         }
 
         public async Task SpinAsync(CancellationToken cancellationToken)
@@ -46,7 +44,7 @@ namespace P2E.Services.SpinWheel
                             ? $"({GetProcessedItemsCount()} / {totalItemsCount.Value}) {_spinPositions[spinPosition]}"
                             : $"{_spinPositions[spinPosition]}";
 
-                        lock (_consoleLock.LockObject)
+                        lock (ConsoleLockObject)
                         {
                             Console.Out.Write(spinWheelString);
                             Console.SetCursorPosition(Console.CursorLeft - spinWheelString.Length, Console.CursorTop);

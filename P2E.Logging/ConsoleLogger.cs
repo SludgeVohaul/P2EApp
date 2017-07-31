@@ -1,22 +1,14 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using System.Threading;
+using AppConsole;
 using MediaBrowser.Model.Logging;
-using P2E.Interfaces.AppConsole;
 using P2E.Interfaces.Logging;
 
 namespace P2E.Logging
 {
-    public class ConsoleLogger : IAppLogger
+    public class ConsoleLogger : ConsoleLock, IAppLogger
     {
-        private readonly IConsoleLock _consoleLock;
-
-        public ConsoleLogger(IConsoleLock consoleLock)
-        {
-            _consoleLock = consoleLock;
-        }
-
         public void Info(string message, params object[] paramList)
         {
             WriteToStdOut($"INFO: {message}", paramList);
@@ -64,7 +56,7 @@ namespace P2E.Logging
 
         private void WriteToStdErr(string message, params object[] paramList)
         {
-            lock (_consoleLock.LockObject)
+            lock (ConsoleLockObject)
             {
                 if (paramList.Length == 0)
                 {
@@ -78,7 +70,7 @@ namespace P2E.Logging
 
         private void WriteToStdOut(string message, params object[] paramList)
         {
-            lock(_consoleLock.LockObject)
+            lock(ConsoleLockObject)
             {
                 if (paramList.Length == 0)
                 {
