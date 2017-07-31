@@ -5,17 +5,16 @@ namespace P2E.DataObjects
 {
     public class ConnectionInformation<T> : IConnectionInformation<T> where T : IConsoleConnectionOptions<T>
     {
-        public string Protocol { get; }
-        public string IpAddress { get; }
-        public int Port { get; }
-        public string ServerUrl { get; }
+        private readonly T _consoleConnectionOptions;
+
+        public string Protocol => _consoleConnectionOptions.Protocol;
+        public string IpAddress => _consoleConnectionOptions.IpAddress;
+        public int Port => _consoleConnectionOptions.Port;
+        public string ServerUrl => $"{Protocol}://{IpAddress}:{Port}";
 
         public ConnectionInformation(T consoleConnectionOptions)
         {
-            Protocol = consoleConnectionOptions.Protocol;
-            IpAddress = consoleConnectionOptions.IpAddress;
-            Port = consoleConnectionOptions.Port;
-            ServerUrl = $"{consoleConnectionOptions.Protocol}://{consoleConnectionOptions.IpAddress}:{consoleConnectionOptions.Port}";
+            _consoleConnectionOptions = consoleConnectionOptions;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace P2E.DataObjects.Plex
     {
         private IConnectionInformation _connectionInformation;
 
-        public string ServerType { get; } = "Plex";
+        public string ServerType => "Plex";
         public string AccessToken { get; private set; }
 
         public PlexClient(IConnectionInformation connectionInformation)

@@ -13,19 +13,12 @@ namespace P2E.DataObjects.Emby
     {
         public event EventHandler<EventArgs> ResumeFromSleep;
 
-        public string DeviceName { get; }
-        public string DeviceId { get; }
-
-        public Device()
-        {
-            DeviceName = Environment.MachineName;
-            DeviceId = NetworkInterface.GetAllNetworkInterfaces()
+        public string DeviceName => Environment.MachineName;
+        public string DeviceId => NetworkInterface.GetAllNetworkInterfaces()
                 .Where(x => x.OperationalStatus == OperationalStatus.Up)
                 .Select(x => x.GetPhysicalAddress()
                 .ToString())
                 .FirstOrDefault();
-        }
-
 
         public Task<IEnumerable<LocalFileInfo>> GetLocalPhotos()
         {

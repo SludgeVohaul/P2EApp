@@ -14,7 +14,7 @@ namespace P2E.DataObjects.Emby
         private IUserCredentials _userCredentials;
         private readonly IConnectionInformation _connectionInformation;
 
-        public string ServerType { get; } = "Emby";
+        public string ServerType => "Emby";
 
         public EmbyClient(IAppLogger logger, IDevice device, ICryptographyProvider cryptographyProvider,
             IConnectionInformation connectionInformation, IApplicationInformation applicationInformation)
