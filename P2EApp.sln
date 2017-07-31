@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P2E.Logging", "P2E.Logging\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P2E.ExtensionMethods", "P2E.ExtensionMethods\P2E.ExtensionMethods.csproj", "{D594DD7F-E4A5-410D-B200-5E8F8A147B68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppConsole", "AppConsole\AppConsole.csproj", "{B256B2BA-9BD6-47CF-8D7E-277A6956B3B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{D594DD7F-E4A5-410D-B200-5E8F8A147B68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D594DD7F-E4A5-410D-B200-5E8F8A147B68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D594DD7F-E4A5-410D-B200-5E8F8A147B68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B256B2BA-9BD6-47CF-8D7E-277A6956B3B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B256B2BA-9BD6-47CF-8D7E-277A6956B3B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B256B2BA-9BD6-47CF-8D7E-277A6956B3B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B256B2BA-9BD6-47CF-8D7E-277A6956B3B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

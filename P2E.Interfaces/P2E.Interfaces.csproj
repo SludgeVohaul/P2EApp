@@ -50,6 +50,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppConsole\IConsoleLock.cs" />
     <Compile Include="AppLogic\ILogic.cs" />
     <Compile Include="CommandLine\IConsoleLibraryOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsoleConnectionOptions.cs" />

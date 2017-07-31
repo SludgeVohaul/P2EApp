@@ -3,13 +3,19 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 using MediaBrowser.Model.Logging;
+using P2E.Interfaces.AppConsole;
 using P2E.Interfaces.Logging;
 
 namespace P2E.Logging
 {
     public class ConsoleLogger : IAppLogger
     {
-        private static readonly SemaphoreSlim SemSlim = new SemaphoreSlim(1, 1);
+        private readonly IConsoleLock _consoleLock;
+
+        public ConsoleLogger(IConsoleLock consoleLock)
+        {
+            _consoleLock = consoleLock;
+        }
 
         public void Info(string message, params object[] paramList)
         {
@@ -58,8 +64,7 @@ namespace P2E.Logging
 
         private void WriteToStdErr(string message, params object[] paramList)
         {
-            SemSlim.Wait();
-            try
+            lock (_consoleLock.LockObject)
             {
                 if (paramList.Length == 0)
                 {
@@ -69,16 +74,11 @@ namespace P2E.Logging
 
                 Console.Error.WriteLine($"{GetTimestamp()} {message}\n{{0}}", paramList);
             }
-            finally
-            {
-                SemSlim.Release();
-            }
         }
 
         private void WriteToStdOut(string message, params object[] paramList)
         {
-            SemSlim.Wait();
-            try
+            lock(_consoleLock.LockObject)
             {
                 if (paramList.Length == 0)
                 {
@@ -87,10 +87,6 @@ namespace P2E.Logging
                 }
 
                 Console.Out.WriteLine($"{GetTimestamp()} {message}\n{{0}}", paramList);
-            }
-            finally
-            {
-                SemSlim.Release();
             }
         }
 

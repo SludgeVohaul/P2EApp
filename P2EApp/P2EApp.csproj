@@ -80,6 +80,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AppConsole\AppConsole.csproj">
+      <Project>{B256B2BA-9BD6-47CF-8D7E-277A6956B3B3}</Project>
+      <Name>AppConsole</Name>
+    </ProjectReference>
     <ProjectReference Include="..\P2E.AppLogic\P2E.AppLogic.csproj">
       <Project>{d86ac6c3-e610-4ebb-a4bc-1f32c13a3922}</Project>
       <Name>P2E.AppLogic</Name>

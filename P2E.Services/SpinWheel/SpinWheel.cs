@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using P2E.Interfaces.AppConsole;
 using P2E.Interfaces.Logging;
 using P2E.Interfaces.Services.SpinWheel;
 
@@ -11,13 +12,16 @@ namespace P2E.Services.SpinWheel
         private readonly object _itemCountLockObject = new object();
 
         private readonly IAppLogger _logger;
+        private readonly IConsoleLock _consoleLock;
+
         private readonly string[] _spinPositions = { "|", "/", "-", @"\" };
 
         private int _processedItemsCount;
 
-        public SpinWheel(IAppLogger logger)
+        public SpinWheel(IAppLogger logger, IConsoleLock consoleLock)
         {
             _logger = logger;
+            _consoleLock = consoleLock;
         }
 
         public async Task SpinAsync(CancellationToken cancellationToken)
@@ -42,15 +46,16 @@ namespace P2E.Services.SpinWheel
                             ? $"({GetProcessedItemsCount()} / {totalItemsCount.Value}) {_spinPositions[spinPosition]}"
                             : $"{_spinPositions[spinPosition]}";
 
-                        Console.Write(spinWheelString);
-                        // TODO - Fix race condition.
-                        // FYI: In another thread issues a WriteLine() while this thread is between Write() and SetCursorPositon(),
-                        // FYI: then CursorLeft is 0, which leads to a negative value in parameter 'left'.
-                        Console.SetCursorPosition(Console.CursorLeft - spinWheelString.Length, Console.CursorTop);
+                        lock (_consoleLock.LockObject)
+                        {
+                            Console.Out.Write(spinWheelString);
+                            Console.SetCursorPosition(Console.CursorLeft - spinWheelString.Length, Console.CursorTop);
+                        }
+
                         spinPosition = spinPosition == 3 ? 0 : spinPosition + 1;
                         try
                         {
-                            await Task.Delay(300, cancellationToken);
+                            await Task.Delay(100, cancellationToken);
                         }
                         catch (OperationCanceledException)
                         {
