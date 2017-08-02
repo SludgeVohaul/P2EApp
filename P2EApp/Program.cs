@@ -24,7 +24,7 @@ namespace P2EApp
                     return;
                 }
 
-                kernel.Get<ILogic>().RunAsync().Wait();
+                kernel.Get<IMainLogic>().RunAsync().Wait();
             }
             catch (AggregateException ae)
             {

@@ -57,24 +57,26 @@ namespace P2EApp
 
             kernel.Bind<ISpinWheel>().To<SpinWheel>().InSingletonScope();
 
-            kernel.Bind<IEmbyClient>().To<EmbyClient>();
-            kernel.Bind<IPlexClient>().To<PlexClient>();
+            kernel.Bind<IEmbyClient>().To<EmbyClient>().InSingletonScope();
+            kernel.Bind<IPlexClient>().To<PlexClient>().InSingletonScope();
 
             kernel.Bind<IClientFactory>().ToFactory();
             kernel.Bind<IUserCredentialsFactory>().ToFactory();
             kernel.Bind<IConnectionInformationFactory>().ToFactory();
             kernel.Bind<IServiceFactory>().ToFactory();
+            kernel.Bind<ILogicFactory>().ToFactory().InSingletonScope();
+
+            kernel.Bind<IMainLogic>().To<MainLogic>().InSingletonScope();
+            kernel.Bind<IEmbyImportLogic>().To<EmbyImportLogic>().InSingletonScope();
+            kernel.Bind<IPlexExportLogic>().To<PlexExportLogic>().InSingletonScope();
 
             kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();
             kernel.Bind<IEmbyService>().To<EmbyService>();
             kernel.Bind<IPlexService>().To<PlexService>();
-            kernel.Bind<ISpinWheelService>().To<SpinWheelService>().InSingletonScope();
-
+            kernel.Bind<ISpinWheelService>().To<SpinWheelService>();
 
             kernel.Bind<IEmbyRepository>().To<EmbyRepository>();
             kernel.Bind<IPlexRepository>().To<PlexRepository>();
-
-            kernel.Bind<ILogic>().To<Logic>().InSingletonScope();
         }
     }
 }

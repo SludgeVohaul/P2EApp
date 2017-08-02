@@ -50,7 +50,10 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppLogic\IEmbyImportLogic.cs" />
     <Compile Include="AppLogic\ILogic.cs" />
+    <Compile Include="AppLogic\IMainLogic.cs" />
+    <Compile Include="AppLogic\IPlexExportLogic.cs" />
     <Compile Include="CommandLine\IConsoleLibraryOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsoleConnectionOptions.cs" />
     <Compile Include="CommandLine\IConsoleOptions.cs" />
@@ -66,6 +69,7 @@
     <Compile Include="DataObjects\Plex\Library\IPlexMovieMetadata.cs" />
     <Compile Include="Factories\IConnectionInformationFactory.cs" />
     <Compile Include="Factories\IClientFactory.cs" />
+    <Compile Include="Factories\ILogicFactory.cs" />
     <Compile Include="Factories\IServiceFactory.cs" />
     <Compile Include="Factories\IUserCredentialsFactory.cs" />
     <Compile Include="Logging\IAppLogger.cs" />
@@ -82,7 +86,9 @@
     <Compile Include="Services\IUserCredentialsService.cs" />
     <Compile Include="Services\Plex\IPlexService.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="DataObjects\Emby\Library\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

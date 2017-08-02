@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using P2E.Interfaces.AppLogic;
-using P2E.Interfaces.CommandLine;
 using P2E.Interfaces.CommandLine.ServerOptions;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
@@ -13,130 +12,128 @@ using P2E.Interfaces.DataObjects.Plex.Library;
 using P2E.Interfaces.Factories;
 using P2E.Interfaces.Logging;
 using P2E.Interfaces.Services;
-using P2E.Interfaces.Services.Emby;
-using P2E.Interfaces.Services.Plex;
 using P2E.Interfaces.Services.SpinWheel;
 
 namespace P2E.AppLogic
 {
-    public class Logic : ILogic
+    public class MainLogic : IMainLogic
     {
         private readonly IAppLogger _logger;
+        private readonly ILogicFactory _logicFactory;
         private readonly IClientFactory _clientFactory;
         private readonly IConnectionInformationFactory _connectionInformationFactory;
         private readonly IServiceFactory _serviceFactory;
-        private readonly IConsoleLibraryOptions _consoleLibraryOptions;
 
-        private IUserCredentialsService _userCredentialsService;
-        private ISpinWheelService _spinWheelService;
-        private IEmbyService _embyService;
-        private IPlexService _plexService;
-
-        private IEmbyClient _embyClient;
-        private IPlexClient _plexClient;
-
-        public Logic(IAppLogger logger,
+        public MainLogic(IAppLogger logger,
+            ILogicFactory logicFactory,
             IClientFactory clientFactory,
             IConnectionInformationFactory connectionInformationFactory,
-            IServiceFactory serviceFactory,
-            IConsoleLibraryOptions consoleLibraryOptions)
+            IServiceFactory serviceFactory)
         {
             _logger = logger;
+            _logicFactory = logicFactory;
             _clientFactory = clientFactory;
             _connectionInformationFactory = connectionInformationFactory;
             _serviceFactory = serviceFactory;
-            _consoleLibraryOptions = consoleLibraryOptions;
         }
 
-        public async Task RunAsync()
+        public async Task<bool> RunAsync()
         {
-            Initialize();
+            //Initialize();
 
-            var clients = new List<IClient> { _embyClient, _plexClient };
-
-            try
-            {
-                // FYI: As async access to the console is not possible, login data is collected ahead of the async login tasks.
-                // FYI: Each client gets an instance of the credentials service, but it's up to the client to use it or not.
-                clients.ForEach(x => x.SetLoginData(_userCredentialsService));
-
-                var loginAllTask = await LoginAllClientsAsync(clients);
-                if (loginAllTask == false) return;
-
-                // TODO - handle RemoteLoggedOut?
-                //_embyClient.RemoteLoggedOut += EmbyClient_RemoteLoggedOut;
-
-                //await _embyService.DoItAsync(_embyClient);
-
-                var movieMetadataItems = await GetPlexMetadataAsync(_plexClient, _consoleLibraryOptions.PlexLibraryName);
-                if (movieMetadataItems == null || movieMetadataItems.Any() == false)
-                {
-                    _logger.Warn("Found no items to process.");
-                    return;
-                }
-
-                var updateAllTask = await UpdateAllEmbyMovieMetadataAsync(_embyClient, movieMetadataItems, _consoleLibraryOptions.EmbyLibraryName);
-                _logger.Info(updateAllTask ? "Update successful." : "Some items could not be updated.");
-            }
-            finally
-            {
-                await LogoutAllClientsAsync(clients);
-                _logger.Info("Logic done.");
-            }
-        }
-
-        private void Initialize()
-        {
-            _userCredentialsService = _serviceFactory.CreateService<IUserCredentialsService>();
-            _embyService = _serviceFactory.CreateService<IEmbyService>();
-            _plexService = _serviceFactory.CreateService<IPlexService>();
-
-            _spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
+            var plexExportLogic = _logicFactory.CreateLogic<IPlexExportLogic>();
+            var embyImportLogic = _logicFactory.CreateLogic<IEmbyImportLogic>();
 
             var connectionInformationEmby1 = _connectionInformationFactory
                 .CreateConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>();
             var connectionInformationPlex1 = _connectionInformationFactory
                 .CreateConnectionInformation<IConsolePlexInstance1ConnectionOptions>();
 
-            _embyClient = _clientFactory.CreateClient<IEmbyClient>(connectionInformationEmby1);
-            _plexClient = _clientFactory.CreateClient<IPlexClient>(connectionInformationPlex1);
+            var embyClient = _clientFactory.CreateClient<IEmbyClient>(connectionInformationEmby1);
+            var plexClient = _clientFactory.CreateClient<IPlexClient>(connectionInformationPlex1);
+
+            var userCredentialsService = _serviceFactory.CreateService<IUserCredentialsService>();
+
+            var clients = new List<IClient> { embyClient, plexClient };
+
+            bool retval;
+            try
+            {
+                // FYI: As async access to the console is not possible, login data is collected ahead of the async login tasks.
+                // FYI: Each client gets an instance of the credentials service, but it's up to the client to use it or not.
+                clients.ForEach(x => x.SetLoginData(userCredentialsService));
+
+                var didLoginAll = await LoginAllClientsAsync(clients);
+                if (didLoginAll == false) return false;
+
+                // TODO - handle RemoteLoggedOut?
+                //_embyClient.RemoteLoggedOut += EmbyClient_RemoteLoggedOut;
+
+                //await _embyService.DoItAsync(_embyClient);
+
+                var didExportFromPlex = await ExportFromPlex(plexClient, plexExportLogic);
+                if (didExportFromPlex == false)
+                {
+                    _logger.Warn("No items to process - exiting.");
+                    return false;
+                }
+
+                var didImportToEmby = await ImportToEmby(embyClient, embyImportLogic, plexExportLogic.MovieMetadataItems);
+                if (didImportToEmby == false)
+                {
+                    _logger.Warn("Some items could not be updated.");
+                    return false;
+                }
+
+                _logger.Info("Update successful.");
+            }
+            finally
+            {
+                var didLogoutAll = await LogoutAllClientsAsync(clients);
+                retval = didLogoutAll;
+                _logger.Info("Logic done.");
+            }
+
+            return retval;
         }
 
-        private async Task<List<IPlexMovieMetadata>> GetPlexMetadataAsync(IPlexClient plexClient, string plexLibraryName)
+        private async Task<bool> ExportFromPlex(IPlexClient plexClient, IPlexExportLogic plexExportLogic)
         {
+            var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
+
             using (var cts = new CancellationTokenSource())
             {
-                await _spinWheelService.StartSpinWheelAsync(cts.Token);
-                var movieMetadata = await _plexService.GetMovieMetadataAsync(plexClient, plexLibraryName);
-                _spinWheelService.StopSpinWheel(cts);
+                await spinWheelService.StartSpinWheelAsync(cts.Token);
+                var didExportFromPlex = await plexExportLogic.RunAsync(plexClient);
+                spinWheelService.StopSpinWheel(cts);
 
-                return movieMetadata;
+                return didExportFromPlex;
             }
         }
 
-        private async Task<bool> UpdateAllEmbyMovieMetadataAsync(IEmbyClient embyClient, IEnumerable<IPlexMovieMetadata> movieMetadataItems, string embyLibraryName)
+        private async Task<bool> ImportToEmby(IEmbyClient embyClient, IEmbyImportLogic embyImportLogic, IList<IPlexMovieMetadata> plexMovieMetadata)
         {
-            var movieMetadataItemsArr = movieMetadataItems.ToArray();
-            _embyService.ItemProcessed += _spinWheelService.OnItemProcessed;
+            var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
 
             using (var cts = new CancellationTokenSource())
             {
-                await _spinWheelService.StartSpinWheelAsync(movieMetadataItemsArr.Length, cts.Token);
-                var updateTask = new Func<IPlexMovieMetadata, Task<bool>>(x => _embyService.UpdateItemAsync(embyClient, x, embyLibraryName));
-                var updateTasksCompletedTask = await Task.WhenAll(movieMetadataItemsArr.Take(5).Select(updateTask));
-                _spinWheelService.StopSpinWheel(cts);
+                await spinWheelService.StartSpinWheelAsync(cts.Token);
+                var didImportToEmby = await embyImportLogic.RunAsync(embyClient, plexMovieMetadata);
+                spinWheelService.StopSpinWheel(cts);
 
-                return updateTasksCompletedTask.All(x => x);
+                return didImportToEmby;
             }
         }
 
         private async Task<bool> LoginAllClientsAsync(IEnumerable<IClient> clients)
         {
+            var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
+
             using (var cts = new CancellationTokenSource())
             {
-                await _spinWheelService.StartSpinWheelAsync(cts.Token);
+                await spinWheelService.StartSpinWheelAsync(cts.Token);
                 var loginAllClientsTask = await Task.WhenAll(clients.Select(LoginClientAsync));
-                _spinWheelService.StopSpinWheel(cts);
+                spinWheelService.StopSpinWheel(cts);
 
                 return loginAllClientsTask.All(x => x);
             }
@@ -146,7 +143,7 @@ namespace P2E.AppLogic
         {
             try
             {
-                await Task.Delay(4000);
+                //sawait Task.Delay(4000);
                 await client.LoginAsync();
                 _logger.Info($"Logged into '{client.ServerType}'.");
                 return true;
@@ -174,11 +171,13 @@ namespace P2E.AppLogic
 
         private async Task<bool> LogoutAllClientsAsync(IEnumerable<IClient> clients)
         {
+            var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
+
             using (var cts = new CancellationTokenSource())
             {
-                await _spinWheelService.StartSpinWheelAsync(cts.Token);
+                await spinWheelService.StartSpinWheelAsync(cts.Token);
                 var logoutAllClientsTask = await Task.WhenAll(clients.Select(LogoutClientAsync));
-                _spinWheelService.StopSpinWheel(cts);
+                spinWheelService.StopSpinWheel(cts);
 
                 return logoutAllClientsTask.All(x => x);
             }
@@ -188,7 +187,7 @@ namespace P2E.AppLogic
         {
             try
             {
-                await Task.Delay(4000);
+                //await Task.Delay(4000);
                 await client.LogoutAsync();
                 _logger.Info($"Logged out from '{client.ServerType}'.");
                 return true;
