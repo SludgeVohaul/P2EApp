@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using P2E.Interfaces.AppLogic;
 using P2E.Interfaces.CommandLine;
@@ -36,13 +37,17 @@ namespace P2E.AppLogic
         {
             var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
             var embyService = _serviceFactory.CreateService<IEmbyService>();
-            var movieMetadataItemsArr = movieMetadataItems.ToArray();
             embyService.ItemProcessed += spinWheelService.OnItemProcessed;
 
-            var updateTask = new Func<IPlexMovieMetadata, Task<bool>>(x => embyService.UpdateItemAsync(embyClient, x, embyLibraryName));
-            var updateTasksCompletedTask = await Task.WhenAll(movieMetadataItemsArr.Take(1).Select(updateTask));
+            using (var cts = new CancellationTokenSource())
+            {
+                await spinWheelService.StartSpinWheelAsync(cts.Token);
+                var updateTask = new Func<IPlexMovieMetadata, Task<bool>>(x => embyService.UpdateItemAsync(embyClient, x, embyLibraryName));
+                var updateTasksCompletedTask = await Task.WhenAll(movieMetadataItems.ToArray().Take(1).Select(updateTask));
+                spinWheelService.StopSpinWheel(cts);
 
-            return updateTasksCompletedTask.All(x => x);
+                return updateTasksCompletedTask.All(x => x);
+            }
         }
     }
 }

@@ -39,8 +39,6 @@ namespace P2E.AppLogic
 
         public async Task<bool> RunAsync()
         {
-            //Initialize();
-
             var plexExportLogic = _logicFactory.CreateLogic<IPlexExportLogic>();
             var embyImportLogic = _logicFactory.CreateLogic<IEmbyImportLogic>();
 
@@ -71,14 +69,14 @@ namespace P2E.AppLogic
 
                 //await _embyService.DoItAsync(_embyClient);
 
-                var didExportFromPlex = await ExportFromPlex(plexClient, plexExportLogic);
+                var didExportFromPlex = await plexExportLogic.RunAsync(plexClient);
                 if (didExportFromPlex == false)
                 {
                     _logger.Warn("No items to process - exiting.");
                     return false;
                 }
 
-                var didImportToEmby = await ImportToEmby(embyClient, embyImportLogic, plexExportLogic.MovieMetadataItems);
+                var didImportToEmby = await embyImportLogic.RunAsync(embyClient, plexExportLogic.MovieMetadataItems);
                 if (didImportToEmby == false)
                 {
                     _logger.Warn("Some items could not be updated.");
@@ -95,34 +93,6 @@ namespace P2E.AppLogic
             }
 
             return retval;
-        }
-
-        private async Task<bool> ExportFromPlex(IPlexClient plexClient, IPlexExportLogic plexExportLogic)
-        {
-            var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
-
-            using (var cts = new CancellationTokenSource())
-            {
-                await spinWheelService.StartSpinWheelAsync(cts.Token);
-                var didExportFromPlex = await plexExportLogic.RunAsync(plexClient);
-                spinWheelService.StopSpinWheel(cts);
-
-                return didExportFromPlex;
-            }
-        }
-
-        private async Task<bool> ImportToEmby(IEmbyClient embyClient, IEmbyImportLogic embyImportLogic, IList<IPlexMovieMetadata> plexMovieMetadata)
-        {
-            var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
-
-            using (var cts = new CancellationTokenSource())
-            {
-                await spinWheelService.StartSpinWheelAsync(cts.Token);
-                var didImportToEmby = await embyImportLogic.RunAsync(embyClient, plexMovieMetadata);
-                spinWheelService.StopSpinWheel(cts);
-
-                return didImportToEmby;
-            }
         }
 
         private async Task<bool> LoginAllClientsAsync(IEnumerable<IClient> clients)
