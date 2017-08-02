@@ -21,7 +21,7 @@ namespace P2E.Logging
             ErrorException
         }
 
-        private ConsoleColor _consoleForegroundColor = Console.ForegroundColor;
+        private readonly ConsoleColor _consoleForegroundColor = Console.ForegroundColor;
 
         public void Info(string message, params object[] paramList)
         {
@@ -78,10 +78,11 @@ namespace P2E.Logging
                     if (paramList.Length == 0)
                     {
                         Console.Error.WriteLine($"{GetTimestamp()} {message}");
-                        return;
                     }
-
-                    Console.Error.WriteLine($"{GetTimestamp()} {message}\n{{0}}", paramList);
+                    else
+                    {
+                        Console.Error.WriteLine($"{GetTimestamp()} {message}\n{{0}}", paramList);
+                    }
                     Console.ForegroundColor = _consoleForegroundColor;
                 }
             }
@@ -102,10 +103,11 @@ namespace P2E.Logging
                     if (paramList.Length == 0)
                     {
                         Console.Out.WriteLine($"{GetTimestamp()} {message}");
-                        return;
                     }
-
-                    Console.Out.WriteLine($"{GetTimestamp()} {message}\n{{0}}", paramList);
+                    else
+                    {
+                        Console.Out.WriteLine($"{GetTimestamp()} {message}\n{{0}}", paramList);
+                    }
                     Console.ForegroundColor = _consoleForegroundColor;
                 }
             }
