@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaBrowser.Model.Collections;
+using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Querying;
 using P2E.ExtensionMethods;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Repositories.Emby;
 using MediaBrowser.Model.Entities;
 using Newtonsoft.Json;
+using P2E.DataObjects.Emby.Library;
+using P2E.Interfaces.DataObjects.Emby.Library;
 using P2E.Interfaces.Logging;
 
 namespace P2E.Repositories.Emby
@@ -20,6 +24,83 @@ namespace P2E.Repositories.Emby
         public EmbyRepository(IAppLogger logger)
         {
             _logger = logger;
+        }
+
+        public async Task<ILibraryIdentifier[]> GetLibraryIdentifiersAsync(IEmbyClient client)
+        {
+            var itemsResult = await client.GetUserViews(client.CurrentUserId);
+
+            return itemsResult.Items
+                .Select(x => new LibraryIdentifier
+                {
+                    Name = x.Name,
+                    Id = x.Id
+                } as ILibraryIdentifier)
+                .ToArray();
+        }
+
+        public async Task<IFilenameIdentifier[]> GetFilenameIdentifiersAsync(IEmbyClient client, ILibraryIdentifier libraryIdentifier)
+        {
+            var query = new ItemQuery
+            {
+                UserId = client.CurrentUserId,
+                ParentId = libraryIdentifier.Id,
+                Filters = new[] { ItemFilter.IsNotFolder },
+                IncludeItemTypes = new[] { "Movie" },
+                Fields = new[] { ItemFields.Path },
+                Recursive = true
+            };
+            var itemsResult = await client.GetItemsAsync(query);
+
+            return itemsResult.Items
+                .Select(x => new FilenameIdentifier
+                {
+                    Filename = Path.GetFileName(x.Path),
+                    Id = x.Id,
+                } as IFilenameIdentifier)
+                .ToArray();
+        }
+
+        public async Task<IFilenameIdentifier[]> GetMovieIdsAsync(IEmbyClient client, string libraryName)
+        {
+            var query = new ItemQuery
+            {
+                UserId = client.CurrentUserId,
+                // das ist die id der Movies CZ lib
+                //Ids = new [] { "33a3ebcb3615fbc88bdfacf96075317e" },
+                ParentId = "33a3ebcb3615fbc88bdfacf96075317e",
+
+                // Get media only, don't return folder items
+                Filters = new[] { ItemFilter.IsNotFolder },
+
+                IncludeItemTypes = new[] { "Movie" },
+
+                //Limit = 11,
+                Fields = new[] { ItemFields.Path },
+                //Fields = new[] { ItemFields.MediaSources },
+
+
+
+                // Search recursively through the user's library
+                Recursive = true
+            };
+            //var itemsResult = await client.GetItemsAsync(query);
+            var itemsResult = await client.GetItemsAsync(query);
+            // das holt die library namen samt id.
+            var libs = await client.GetUserViews(client.CurrentUserId);
+
+            var paretiddto = await client.GetItemAsync("83ef7ab9c13d82603663b7fd841a169b", client.CurrentUserId);
+            var viewiddto = await client.GetItemAsync("33a3ebcb3615fbc88bdfacf96075317e", client.CurrentUserId);
+
+            return itemsResult.Items
+                .Select(x => new FilenameIdentifier
+                {
+                    Filename = Path.GetFileName(x.Path),
+                    Id = x.Id,
+                } as IFilenameIdentifier)
+                .ToArray();
+            //var baseItemDto = await client.GetItemAsync("209fe3f9525635b01de69121be68a4f3", client.CurrentUserId);
+
         }
 
         public async Task GetStuffAsync(IEmbyClient client)
@@ -122,7 +203,7 @@ namespace P2E.Repositories.Emby
 
 
             await Task.Delay(15000);
-            ////////var result = await client.PostAsync<Task<BaseItemDto>>(client.GetApiUrl("Items/209fe3f9525635b01de69121be68a4f3"), baseItemDtoDict);
+            var result = await client.PostAsync<Task<BaseItemDto>>(client.GetApiUrl("Items/209fe3f9525635b01de69121be68a4f3"), baseItemDtoDict);
 
 
 
@@ -166,14 +247,6 @@ namespace P2E.Repositories.Emby
             }
         }
 
-
-
-
-        private class MovieIdentifier
-        {
-            public string Id { get; set; }
-            public string Filename { get; set; }
-        }
 
         public void GetStuff(IEmbyClient client)
         {

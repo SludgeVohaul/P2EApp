@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using P2E.Interfaces.DataObjects.Emby;
+using P2E.Interfaces.DataObjects.Emby.Library;
 using P2E.Interfaces.DataObjects.Plex.Library;
 using P2E.Interfaces.Logging;
 using P2E.Interfaces.Services.Emby;
@@ -15,29 +17,43 @@ namespace P2E.Services.Emby
         // Do it sequentially first...
         private static readonly SemaphoreSlim SemSlim = new SemaphoreSlim(1, 1);
 
+        private readonly IEmbyClient _client;
         private readonly IAppLogger _logger;
         private readonly IEmbyRepository _repository;
 
         public event EventHandler ItemProcessed;
 
-        public EmbyService(IAppLogger logger, IEmbyRepository embyRepository)
+        public EmbyService(IAppLogger logger, IEmbyClient client, IEmbyRepository embyRepository)
         {
+            _client = client;
             _logger = logger;
             _repository = embyRepository;
         }
 
-        public async Task DoItAsync(IEmbyClient client)
+        public async Task<ILibraryIdentifier> GetLibraryIdentifierAsync(string libraryName)
         {
-            await _repository.GetStuffAsync(client);
+            var libraryIdentifiers = await _repository.GetLibraryIdentifiersAsync(_client);
+            return libraryIdentifiers
+                .FirstOrDefault(x => x.Name == libraryName);
         }
 
-        public async Task<bool> UpdateItemAsync(IEmbyClient client, IPlexMovieMetadata plexMovieMetadata, string embyLibraryName)
+        public async Task<IFilenameIdentifier[]> GetFilenameIdentifiersAsync(ILibraryIdentifier libraryIdentifier)
+        {
+            return await _repository.GetFilenameIdentifiersAsync(_client, libraryIdentifier);
+        }
+
+        public async Task<bool> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, string embyLibraryName)
         {
             await SemSlim.WaitAsync();
             try
             {
-                await Task.Delay(2000);
-                _logger.Debug($"Processing {plexMovieMetadata.Title}");
+                //var movieIds = await _repository.GetMovieIdsAsync(_client, embyLibraryName);
+
+
+
+
+                await Task.Delay(1000);
+                _logger.Info($"Processing {plexMovieMetadata.Title}");
                 return true;
             }
             finally

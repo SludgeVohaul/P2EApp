@@ -54,6 +54,9 @@
     <Compile Include="ConnectionInformation.cs" />
     <Compile Include="Emby\EmbyClient.cs" />
     <Compile Include="Emby\Device.cs" />
+    <Compile Include="Emby\Library\ItemIdentifier.cs" />
+    <Compile Include="Emby\Library\LibraryIdentifier.cs" />
+    <Compile Include="Emby\Library\FilenameIdentifier.cs" />
     <Compile Include="Plex\Library\PlexMovieMetadata.cs" />
     <Compile Include="Plex\PlexClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

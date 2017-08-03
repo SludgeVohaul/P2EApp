@@ -1,9 +1,12 @@
 ﻿using P2E.Interfaces.AppLogic;
+using P2E.Interfaces.DataObjects.Emby;
+using P2E.Interfaces.DataObjects.Plex;
 
 namespace P2E.Interfaces.Factories
 {
     public interface ILogicFactory
     {
-        T CreateLogic<T>() where T : ILogic;
+        IEmbyImportLogic CreateLogic(IEmbyClient client);
+        IPlexExportLogic CreateLogic(IPlexClient client);
     }
 }

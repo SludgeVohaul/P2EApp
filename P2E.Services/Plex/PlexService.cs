@@ -12,26 +12,28 @@ namespace P2E.Services.Plex
     public class PlexService : IPlexService
     {
         private readonly IAppLogger _logger;
+        private readonly IPlexClient _client;
         private readonly IPlexRepository _repository;
 
-        public PlexService(IAppLogger logger, IPlexRepository repository)
+        public PlexService(IAppLogger logger, IPlexClient client, IPlexRepository repository)
         {
             _logger = logger;
+            _client = client;
             _repository = repository;
         }
 
-        public async Task<List<IPlexMovieMetadata>> GetMovieMetadataAsync(IPlexClient client, string libraryName)
+        public async Task<List<IPlexMovieMetadata>> GetMovieMetadataAsync(string libraryName)
         {
             try
             {
-                var libraryId = await _repository.GetLibraryIdAsync(client, libraryName);
+                var libraryId = await _repository.GetLibraryIdAsync(_client, libraryName);
                 if (libraryId == null)
                 {
                     _logger.Error($"Library '{libraryName}' not found!");
                     return null;
                 }
 
-                return await _repository.GetMovieLibraryMetadataAsync(client, libraryId);
+                return await _repository.GetMovieLibraryMetadataAsync(_client, libraryId);
             }
             catch (ResponseFailureException ex)
             {

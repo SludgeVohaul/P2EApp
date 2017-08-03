@@ -8,7 +8,6 @@ using P2E.Interfaces.CommandLine.ServerOptions;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.DataObjects.Plex;
-using P2E.Interfaces.DataObjects.Plex.Library;
 using P2E.Interfaces.Factories;
 using P2E.Interfaces.Logging;
 using P2E.Interfaces.Services;
@@ -39,9 +38,6 @@ namespace P2E.AppLogic
 
         public async Task<bool> RunAsync()
         {
-            var plexExportLogic = _logicFactory.CreateLogic<IPlexExportLogic>();
-            var embyImportLogic = _logicFactory.CreateLogic<IEmbyImportLogic>();
-
             var connectionInformationEmby1 = _connectionInformationFactory
                 .CreateConnectionInformation<IConsoleEmbyInstance1ConnectionOptions>();
             var connectionInformationPlex1 = _connectionInformationFactory
@@ -62,28 +58,35 @@ namespace P2E.AppLogic
                 clients.ForEach(x => x.SetLoginData(userCredentialsService));
 
                 var didLoginAll = await LoginAllClientsAsync(clients);
-                if (didLoginAll == false) return false;
+                if (didLoginAll == false)
+                {
+                    _logger.Error("Login to one or more servers failed.");
+                    return false;
+                }
+
+                var plexExportLogic = _logicFactory.CreateLogic(plexClient);
+                var embyImportLogic = _logicFactory.CreateLogic(embyClient);
 
                 // TODO - handle RemoteLoggedOut?
                 //_embyClient.RemoteLoggedOut += EmbyClient_RemoteLoggedOut;
 
                 //await _embyService.DoItAsync(_embyClient);
 
-                var didExportFromPlex = await plexExportLogic.RunAsync(plexClient);
+                var didExportFromPlex = await plexExportLogic.RunAsync();
                 if (didExportFromPlex == false)
                 {
                     _logger.Warn("No items to process - exiting.");
                     return false;
                 }
 
-                var didImportToEmby = await embyImportLogic.RunAsync(embyClient, plexExportLogic.MovieMetadataItems);
+                var didImportToEmby = await embyImportLogic.RunAsync(plexExportLogic.MovieMetadataItems);
                 if (didImportToEmby == false)
                 {
-                    _logger.Warn("Some items could not be updated.");
+                    _logger.Warn("Import failed.");
                     return false;
                 }
 
-                _logger.Info("Update successful.");
+                _logger.Info("Import finished.");
             }
             finally
             {

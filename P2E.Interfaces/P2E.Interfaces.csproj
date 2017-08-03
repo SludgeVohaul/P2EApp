@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppLogic\IEmbyImportLogic.cs" />
-    <Compile Include="AppLogic\ILogic.cs" />
     <Compile Include="AppLogic\IMainLogic.cs" />
     <Compile Include="AppLogic\IPlexExportLogic.cs" />
     <Compile Include="CommandLine\IConsoleLibraryOptions.cs" />
@@ -60,6 +59,9 @@
     <Compile Include="CommandLine\IConsoleSyncOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsoleEmbyInstance1ConnectionOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsolePlexInstance1ConnectionOptions.cs" />
+    <Compile Include="DataObjects\Emby\Library\IItemIdentifier.cs" />
+    <Compile Include="DataObjects\Emby\Library\ILibraryIdentifier.cs" />
+    <Compile Include="DataObjects\Emby\Library\IFilenameIdentifier.cs" />
     <Compile Include="DataObjects\IApplicationInformation.cs" />
     <Compile Include="DataObjects\IClient.cs" />
     <Compile Include="DataObjects\IConnectionInformation.cs" />
@@ -86,9 +88,7 @@
     <Compile Include="Services\IUserCredentialsService.cs" />
     <Compile Include="Services\Plex\IPlexService.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DataObjects\Emby\Library\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
