@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using AppConsole;
 using MediaBrowser.Model.Logging;
@@ -10,52 +11,42 @@ namespace P2E.Logging
 {
     public class ConsoleLogger : ConsoleLock, IAppLogger
     {
-        private enum Severity
-        {
-            Info,
-            Error,
-            Warn,
-            Debug,
-            Fatal,
-            FatalException,
-            ErrorException
-        }
-
         private readonly ConsoleColor _consoleForegroundColor = Console.ForegroundColor;
 
         public void Info(string message, params object[] paramList)
         {
-            WriteToStdOut(Severity.Info, $"INFO: {message}", paramList);
+            WriteToStdOut(Severity.Info, message, paramList);
         }
 
         public void Error(string message, params object[] paramList)
         {
-            WriteToStdErr(Severity.Error, $"ERROR: {message}", paramList);
+            WriteToStdErr(Severity.Error, message, paramList);
         }
 
         public void Warn(string message, params object[] paramList)
         {
-            WriteToStdOut(Severity.Warn, $"WARN: {message}", paramList);
+            WriteToStdOut(Severity.Warn, message, paramList);
         }
 
         public void Debug(string message, params object[] paramList)
         {
-            WriteToStdOut(Severity.Debug, $"DEBUG: {message}", paramList);
+            WriteToStdOut(Severity.Debug, message, paramList);
         }
 
         public void Fatal(string message, params object[] paramList)
         {
-            WriteToStdErr(Severity.Fatal, $"FATAL: {message}", paramList);
+            WriteToStdErr(Severity.Fatal, message, paramList);
         }
 
         public void FatalException(string message, Exception exception, params object[] paramList)
         {
-            WriteToStdErr(Severity.FatalException, $"FATALEXCEPTION: {message}", paramList);
+            WriteToStdErr(Severity.FatalException, message, paramList);
         }
 
+        // TODO - Check why ex.Message is provided in the paramList throughout the app.
         public void ErrorException(string message, Exception exception, params object[] paramList)
         {
-            WriteToStdErr(Severity.ErrorException, $"ERROREXCEPTION: {message}", paramList);
+            WriteToStdErr(Severity.ErrorException, message, paramList);
         }
 
         public void LogMultiline(string message, LogSeverity severity, StringBuilder additionalContent)
@@ -68,6 +59,18 @@ namespace P2E.Logging
             throw new NotImplementedException();
         }
 
+        public void Log(Severity severity, string message, params object[] paramList)
+        {
+            if (new[] { Severity.Error, Severity.Fatal, Severity.FatalException, Severity.ErrorException }.Contains(severity))
+            {
+                WriteToStdErr(severity, message, paramList);
+            }
+            else
+            {
+                WriteToStdOut(severity, message, paramList);
+            }
+        }
+
         private void WriteToStdErr(Severity severity, string message, params object[] paramList)
         {
             try
@@ -77,11 +80,11 @@ namespace P2E.Logging
                     Console.ForegroundColor = GetSeverityForegroundColor(severity);
                     if (paramList.Length == 0)
                     {
-                        Console.Error.WriteLine($"{GetTimestamp()} {message}");
+                        Console.Error.WriteLine($"{GetTimestamp()} {severity.ToString().ToUpperInvariant()}: {message}");
                     }
                     else
                     {
-                        Console.Error.WriteLine($"{GetTimestamp()} {message}\n{{0}}", paramList);
+                        Console.Error.WriteLine($"{GetTimestamp()} {severity.ToString().ToUpperInvariant()}: {message}\n{{0}}", paramList);
                     }
                     Console.ForegroundColor = _consoleForegroundColor;
                 }
@@ -102,11 +105,11 @@ namespace P2E.Logging
                     Console.ForegroundColor = GetSeverityForegroundColor(severity);
                     if (paramList.Length == 0)
                     {
-                        Console.Out.WriteLine($"{GetTimestamp()} {message}");
+                        Console.Out.WriteLine($"{GetTimestamp()} {severity.ToString().ToUpperInvariant()}: {message}");
                     }
                     else
                     {
-                        Console.Out.WriteLine($"{GetTimestamp()} {message}\n{{0}}", paramList);
+                        Console.Out.WriteLine($"{GetTimestamp()} {severity.ToString().ToUpperInvariant()}: {message}\n{{0}}", paramList);
                     }
                     Console.ForegroundColor = _consoleForegroundColor;
                 }
@@ -148,7 +151,7 @@ namespace P2E.Logging
                     foregroundColor = _consoleForegroundColor;
                     break;
                 case Severity.Warn:
-                    foregroundColor = ConsoleColor.DarkRed;
+                    foregroundColor = ConsoleColor.DarkYellow;
                     break;
                 default:
                     throw new InvalidEnumArgumentException($"Unknown severity type: '{severity}'.");
