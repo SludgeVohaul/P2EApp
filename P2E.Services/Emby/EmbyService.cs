@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using P2E.DataObjects.Emby.Library;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.DataObjects.Emby.Library;
 using P2E.Interfaces.DataObjects.Plex.Library;
@@ -21,8 +22,6 @@ namespace P2E.Services.Emby
         private readonly IAppLogger _logger;
         private readonly IEmbyRepository _repository;
 
-        public event EventHandler ItemProcessed;
-
         public EmbyService(IAppLogger logger, IEmbyClient client, IEmbyRepository embyRepository)
         {
             _client = client;
@@ -37,9 +36,38 @@ namespace P2E.Services.Emby
                 .FirstOrDefault(x => x.Name == libraryName);
         }
 
-        public async Task<IFilenameIdentifier[]> GetFilenameIdentifiersAsync(ILibraryIdentifier libraryIdentifier)
+        public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(ILibraryIdentifier libraryIdentifier)
         {
             return await _repository.GetFilenameIdentifiersAsync(_client, libraryIdentifier);
+        }
+
+        public async Task<IMovieUpdateResult> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, IFilenameIdentifier filenameIdentifier)
+        {
+            await SemSlim.WaitAsync();
+            try
+            {
+                var embyCollectionIdentifiers = await _repository.GetCollectionsAsync(_client);
+
+                foreach (var plexCollection in plexMovieMetadata.Collections)
+                {
+                    
+                }
+
+                var missingCollectionNames = plexMovieMetadata.Collections.Except(embyCollectionIdentifiers.Select(x => x.Name));
+
+                //await Task.Delay(1000);
+                _logger.Info($"Processing {plexMovieMetadata.Title}");
+                return new MovieUpdateResult
+                {
+                    Filename = filenameIdentifier.Name,
+                    Title = plexMovieMetadata.Title,
+                    IsUpdated = false
+                };
+            }
+            finally
+            {
+                SemSlim.Release();
+            }
         }
 
         public async Task<bool> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, string embyLibraryName)
@@ -58,15 +86,9 @@ namespace P2E.Services.Emby
             }
             finally
             {
-                OnItemProcessed();
                 SemSlim.Release();
             }
 
-        }
-
-        private void OnItemProcessed()
-        {
-            ItemProcessed?.Invoke(this, new EventArgs());
         }
     }
 }

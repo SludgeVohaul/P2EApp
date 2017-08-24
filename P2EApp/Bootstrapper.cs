@@ -3,11 +3,15 @@ using MediaBrowser.Model.ApiClient;
 using Ninject;
 using Ninject.Extensions.Factory;
 using P2E.AppLogic;
+using P2E.AppLogic.Emby;
+using P2E.AppLogic.Plex;
 using P2E.CommandLine;
 using P2E.DataObjects;
 using P2E.DataObjects.Emby;
 using P2E.DataObjects.Plex;
 using P2E.Interfaces.AppLogic;
+using P2E.Interfaces.AppLogic.Emby;
+using P2E.Interfaces.AppLogic.Plex;
 using P2E.Interfaces.CommandLine;
 using P2E.Interfaces.CommandLine.ServerOptions;
 using P2E.Interfaces.DataObjects;
@@ -32,7 +36,7 @@ using P2E.Services.SpinWheel;
 
 namespace P2EApp
 {
-    internal class Bootstrapper
+    internal static class Bootstrapper
     {
         public static void ConfigureContainer(IKernel kernel)
         {
@@ -68,6 +72,7 @@ namespace P2EApp
 
             kernel.Bind<IMainLogic>().To<MainLogic>().InSingletonScope();
             kernel.Bind<IEmbyImportLogic>().To<EmbyImportLogic>().InSingletonScope();
+            kernel.Bind<IEmbyImportMovieLogic>().To<EmbyImportMovieLogic>().InSingletonScope();
             kernel.Bind<IPlexExportLogic>().To<PlexExportLogic>().InSingletonScope();
 
             kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();

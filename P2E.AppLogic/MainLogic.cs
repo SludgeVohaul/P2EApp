@@ -64,8 +64,8 @@ namespace P2E.AppLogic
                     return false;
                 }
 
-                var plexExportLogic = _logicFactory.CreateLogic(plexClient);
-                var embyImportLogic = _logicFactory.CreateLogic(embyClient);
+                var plexExportLogic = _logicFactory.CreatePlexExportLogic(plexClient);
+                var embyImportLogic = _logicFactory.CreateEmbyImportLogic(embyClient);
 
                 // TODO - handle RemoteLoggedOut?
                 //_embyClient.RemoteLoggedOut += EmbyClient_RemoteLoggedOut;
@@ -98,7 +98,7 @@ namespace P2E.AppLogic
             return retval;
         }
 
-        private async Task<bool> LoginAllClientsAsync(IEnumerable<IClient> clients)
+        private async Task<bool> LoginAllClientsAsync(IReadOnlyCollection<IClient> clients)
         {
             var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
 
@@ -142,7 +142,7 @@ namespace P2E.AppLogic
             }
         }
 
-        private async Task<bool> LogoutAllClientsAsync(IEnumerable<IClient> clients)
+        private async Task<bool> LogoutAllClientsAsync(IReadOnlyCollection<IClient> clients)
         {
             var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
 

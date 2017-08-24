@@ -50,18 +50,21 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppLogic\IEmbyImportLogic.cs" />
+    <Compile Include="AppLogic\Emby\IEmbyImportMovieLogic.cs" />
+    <Compile Include="AppLogic\Emby\IEmbyImportLogic.cs" />
     <Compile Include="AppLogic\IMainLogic.cs" />
-    <Compile Include="AppLogic\IPlexExportLogic.cs" />
+    <Compile Include="AppLogic\Plex\IPlexExportLogic.cs" />
     <Compile Include="CommandLine\IConsoleLibraryOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsoleConnectionOptions.cs" />
     <Compile Include="CommandLine\IConsoleOptions.cs" />
     <Compile Include="CommandLine\IConsoleSyncOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsoleEmbyInstance1ConnectionOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsolePlexInstance1ConnectionOptions.cs" />
+    <Compile Include="DataObjects\Emby\Library\ICollectionIdentifier.cs" />
+    <Compile Include="DataObjects\Emby\Library\IFilenameIdentifier.cs" />
     <Compile Include="DataObjects\Emby\Library\IItemIdentifier.cs" />
     <Compile Include="DataObjects\Emby\Library\ILibraryIdentifier.cs" />
-    <Compile Include="DataObjects\Emby\Library\IFilenameIdentifier.cs" />
+    <Compile Include="DataObjects\Emby\Library\IMovieUpdateResult.cs" />
     <Compile Include="DataObjects\IApplicationInformation.cs" />
     <Compile Include="DataObjects\IClient.cs" />
     <Compile Include="DataObjects\IConnectionInformation.cs" />

@@ -3,5 +3,6 @@
     public interface IItemIdentifier
     {
         string Id { get; }
+        string Name { get; }
     }
 }

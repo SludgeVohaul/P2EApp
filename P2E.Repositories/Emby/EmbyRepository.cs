@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaBrowser.Model.Collections;
-using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Querying;
 using P2E.ExtensionMethods;
 using P2E.Interfaces.DataObjects.Emby;
@@ -26,7 +25,7 @@ namespace P2E.Repositories.Emby
             _logger = logger;
         }
 
-        public async Task<ILibraryIdentifier[]> GetLibraryIdentifiersAsync(IEmbyClient client)
+        public async Task<IReadOnlyCollection<ILibraryIdentifier>> GetLibraryIdentifiersAsync(IEmbyClient client)
         {
             var itemsResult = await client.GetUserViews(client.CurrentUserId);
 
@@ -35,11 +34,11 @@ namespace P2E.Repositories.Emby
                 {
                     Name = x.Name,
                     Id = x.Id
-                } as ILibraryIdentifier)
+                })
                 .ToArray();
         }
 
-        public async Task<IFilenameIdentifier[]> GetFilenameIdentifiersAsync(IEmbyClient client, ILibraryIdentifier libraryIdentifier)
+        public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(IEmbyClient client, ILibraryIdentifier libraryIdentifier)
         {
             var query = new ItemQuery
             {
@@ -51,17 +50,38 @@ namespace P2E.Repositories.Emby
                 Recursive = true
             };
             var itemsResult = await client.GetItemsAsync(query);
-
             return itemsResult.Items
                 .Select(x => new FilenameIdentifier
                 {
-                    Filename = Path.GetFileName(x.Path),
+                    Name = Path.GetFileName(x.Path),
                     Id = x.Id,
-                } as IFilenameIdentifier)
+                })
                 .ToArray();
         }
 
-        public async Task<IFilenameIdentifier[]> GetMovieIdsAsync(IEmbyClient client, string libraryName)
+        public async Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionsAsync(IEmbyClient client)
+        {
+            var query = new ItemQuery
+            {
+                UserId = client.CurrentUserId,
+                // FYI: Collections are folders.
+                Filters = new[] { ItemFilter.IsFolder },
+                IncludeItemTypes = new[] { "Boxset" },
+                Fields = new[] { ItemFields.ParentId },
+                Recursive = true
+            };
+
+            var itemsResult = await client.GetItemsAsync(query);
+            return itemsResult.Items
+                .Select(x => new CollectionIdentifier
+                {
+                    Name = x.Name,
+                    Id = x.Id,
+                })
+                .ToArray();
+        }
+
+        public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetMovieIdsAsync(IEmbyClient client, string libraryName)
         {
             var query = new ItemQuery
             {
@@ -95,9 +115,9 @@ namespace P2E.Repositories.Emby
             return itemsResult.Items
                 .Select(x => new FilenameIdentifier
                 {
-                    Filename = Path.GetFileName(x.Path),
+                    Name = Path.GetFileName(x.Path),
                     Id = x.Id,
-                } as IFilenameIdentifier)
+                })
                 .ToArray();
             //var baseItemDto = await client.GetItemAsync("209fe3f9525635b01de69121be68a4f3", client.CurrentUserId);
 
@@ -181,8 +201,12 @@ namespace P2E.Repositories.Emby
 
 
 
-
-
+            //Dictionary<string, string> FD = (from x in data.GetType().GetProperties() select x).ToDictionary(x => x.Name, x => (x.GetGetMethod().Invoke(data, null) == null ? "" : x.GetGetMethod().Invoke(data, null).ToString()));
+            var fd = baseItemDto.GetType().GetProperties()
+                .ToDictionary(x => x.Name, x => x.GetGetMethod()
+                    .Invoke(baseItemDto, null) == null
+                        ? ""
+                        : x.GetGetMethod().Invoke(baseItemDto, null).ToString());
 
 
             //baseItemDto.ForcedSortName = "ugauga";
@@ -202,8 +226,8 @@ namespace P2E.Repositories.Emby
             //    .ToArray();
 
 
-            await Task.Delay(15000);
-            var result = await client.PostAsync<Task<BaseItemDto>>(client.GetApiUrl("Items/209fe3f9525635b01de69121be68a4f3"), baseItemDtoDict);
+            //await Task.Delay(15000);
+            //var result = await client.PostAsync<Task<BaseItemDto>>(client.GetApiUrl("Items/209fe3f9525635b01de69121be68a4f3"), baseItemDtoDict);
 
 
 

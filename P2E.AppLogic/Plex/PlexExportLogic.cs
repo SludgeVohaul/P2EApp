@@ -2,14 +2,14 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using P2E.Interfaces.AppLogic;
+using P2E.Interfaces.AppLogic.Plex;
 using P2E.Interfaces.CommandLine;
 using P2E.Interfaces.DataObjects.Plex;
 using P2E.Interfaces.DataObjects.Plex.Library;
 using P2E.Interfaces.Factories;
 using P2E.Interfaces.Services.SpinWheel;
 
-namespace P2E.AppLogic
+namespace P2E.AppLogic.Plex
 {
     public class PlexExportLogic : IPlexExportLogic
     {
