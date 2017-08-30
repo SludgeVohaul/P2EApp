@@ -7,6 +7,7 @@ using P2E.Interfaces.CommandLine;
 using P2E.Interfaces.DataObjects.Plex;
 using P2E.Interfaces.DataObjects.Plex.Library;
 using P2E.Interfaces.Factories;
+using P2E.Interfaces.Services.Plex;
 using P2E.Interfaces.Services.SpinWheel;
 
 namespace P2E.AppLogic.Plex
@@ -30,7 +31,7 @@ namespace P2E.AppLogic.Plex
 
         public async Task<bool> RunAsync()
         {
-            var plexService = _serviceFactory.CreateService(_client);
+            var plexService = _serviceFactory.CreateService<IPlexService, IPlexClient>(_client);
             var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
             var cts = new CancellationTokenSource();
 

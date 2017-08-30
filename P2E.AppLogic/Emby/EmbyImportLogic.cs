@@ -38,7 +38,7 @@ namespace P2E.AppLogic.Emby
         public async Task<bool> RunAsync(IReadOnlyCollection<IPlexMovieMetadata> plexMovieMetadataItems)
         {
             var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
-            var embyService = _serviceFactory.CreateService(_client);
+            var embyService = _serviceFactory.CreateService<IEmbyService, IEmbyClient>(_client);
 
             var libraryIdentifier = await GetLibraryIdentifierAsync(embyService, spinWheelService, _consoleLibraryOptions.EmbyLibraryName);
             if (libraryIdentifier == null)
