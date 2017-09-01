@@ -96,7 +96,8 @@ namespace P2E.Repositories.Emby
                 {"ParentId", ""},
                 {"Ids", ""}
             };
-            var collectionCreationResult = await client.PostAsync<CollectionCreationResult>(client.GetApiUrl("Collections"), args);
+            var url = client.GetApiUrl("Collections");
+            var collectionCreationResult = await client.PostAsync<CollectionCreationResult>(url, args);
 
             return new CollectionIdentifier
             {
@@ -112,10 +113,12 @@ namespace P2E.Repositories.Emby
         {
             var args = new Dictionary<string, string>
             {
+                // TODO - is the Id item necessary?
                 {"Id", collectionId},
                 {"Ids", movieId}
             };
-            await client.PostAsync<CollectionCreationResult>(client.GetApiUrl($"Collections/{collectionId}/Items"), args);
+            var url = client.GetApiUrl($"Collections/{collectionId}/Items");
+            await client.PostAsync<Task>(url, args);
         }
 
         public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetMovieIdsAsync(IEmbyClient client, string libraryName)
