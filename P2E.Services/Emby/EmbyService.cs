@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using P2E.DataObjects.Emby.Library;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.DataObjects.Emby.Library;
-using P2E.Interfaces.DataObjects.Plex.Library;
 using P2E.Interfaces.Logging;
 using P2E.Interfaces.Services.Emby;
 using P2E.Interfaces.Repositories.Emby;
@@ -14,9 +12,7 @@ namespace P2E.Services.Emby
 {
     public class EmbyService : IEmbyService
     {
-        // TODO - Is it a good idea to execute all updates asynchronously?
-        // Do it sequentially first...
-        private static readonly SemaphoreSlim SemSlim = new SemaphoreSlim(1, 1);
+
 
         private readonly IEmbyClient _client;
         private readonly IAppLogger _logger;
@@ -32,63 +28,92 @@ namespace P2E.Services.Emby
         public async Task<ILibraryIdentifier> GetLibraryIdentifierAsync(string libraryName)
         {
             var libraryIdentifiers = await _repository.GetLibraryIdentifiersAsync(_client);
-            return libraryIdentifiers
-                .FirstOrDefault(x => x.Name == libraryName);
+            return libraryIdentifiers.FirstOrDefault(x => x.Name == libraryName);
         }
 
-        public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(ILibraryIdentifier libraryIdentifier)
+        public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(
+            ILibraryIdentifier libraryIdentifier)
         {
             return await _repository.GetFilenameIdentifiersAsync(_client, libraryIdentifier);
         }
 
-        public async Task<IMovieUpdateResult> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, IFilenameIdentifier filenameIdentifier)
+        public async Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionIdentifiersAsync()
         {
-            await SemSlim.WaitAsync();
+            return (await _repository.GetCollectionIdentifiersAsync(_client)).ToArray();
+        }
+
+        public async Task<ICollectionIdentifier> CreateCollectionAsync(string collectionName)
+        {
             try
             {
-                var embyCollectionIdentifiers = await _repository.GetCollectionsAsync(_client);
-
-                foreach (var plexCollection in plexMovieMetadata.Collections)
-                {
-                    
-                }
-
-                var missingCollectionNames = plexMovieMetadata.Collections.Except(embyCollectionIdentifiers.Select(x => x.Name));
-
-                //await Task.Delay(1000);
-                _logger.Info($"Processing {plexMovieMetadata.Title}");
-                return new MovieUpdateResult
-                {
-                    Filename = filenameIdentifier.Name,
-                    Title = plexMovieMetadata.Title,
-                    IsUpdated = false
-                };
+                var collectionIdentifier = await _repository.CreateCollectionAsync(_client, collectionName);
+                _logger.Log(Severity.Info, $"New collection '{collectionIdentifier.PathBasename}'");
+                _logger.Log(Severity.Debug, $"New collection ID: {collectionIdentifier.Id}");
+                return collectionIdentifier;
             }
-            finally
+            catch (Exception ex)
             {
-                SemSlim.Release();
+                _logger.Log(Severity.Error, $"Failed to create collection '{collectionName}':");
+                _logger.Log(Severity.ErrorException, ex.Message);
+                while (ex.InnerException != null)
+                {
+                    _logger.Log(Severity.ErrorException, ex.InnerException.Message);
+                    ex = ex.InnerException;
+                }
+                return null;
             }
         }
 
-        public async Task<bool> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, string embyLibraryName)
+        public async Task<bool> TryAddMovieToCollectionAsync(IFilenameIdentifier filenameIdentifier,
+                                                             ICollectionIdentifier collectionIdentifier)
         {
-            await SemSlim.WaitAsync();
             try
             {
-                //var movieIds = await _repository.GetMovieIdsAsync(_client, embyLibraryName);
-
-
-
-
-                await Task.Delay(1000);
-                _logger.Info($"Processing {plexMovieMetadata.Title}");
+                await _repository.AddMovieToCollectionAsync(_client, filenameIdentifier.Id, collectionIdentifier.Id);
+                _logger.Log(Severity.Info, $"Adding movie to collection '{collectionIdentifier.PathBasename}'");
                 return true;
             }
-            finally
+            catch (Exception ex)
             {
-                SemSlim.Release();
+                _logger.Log(Severity.Error, $"Failed to add movie to collection '{collectionIdentifier.PathBasename}':");
+                _logger.Log(Severity.ErrorException, ex.Message);
+                while (ex.InnerException != null)
+                {
+                    _logger.Log(Severity.ErrorException, ex.InnerException.Message);
+                    ex = ex.InnerException;
+                }
+                return false;
             }
 
         }
+
+
+        //public async Task<IMovieUpdateResult> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, IFilenameIdentifier filenameIdentifier)
+        //{
+
+
+
+        //    //await Task.Delay(1000);
+        //    _logger.Info($"Processing {plexMovieMetadata.Title}");
+        //    return new MovieUpdateResult
+        //    {
+        //        Filename = filenameIdentifier.Filename,
+        //        Title = plexMovieMetadata.Title,
+        //        IsUpdated = false
+        //    };
+        //}
+
+        //public async Task<bool> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, string embyLibraryName)
+        //{
+        //    //var movieIds = await _repository.GetMovieIdsAsync(_client, embyLibraryName);
+
+
+
+
+        //    await Task.Delay(1000);
+        //    _logger.Info($"Processing {plexMovieMetadata.Title}");
+        //    return true;
+
+        //}
     }
 }

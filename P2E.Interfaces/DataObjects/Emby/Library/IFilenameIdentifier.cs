@@ -2,5 +2,6 @@
 {
     public interface IFilenameIdentifier : IItemIdentifier
     {
+        string Filename { get; }
     }
 }

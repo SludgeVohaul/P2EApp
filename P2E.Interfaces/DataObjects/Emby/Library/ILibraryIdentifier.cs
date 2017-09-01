@@ -2,5 +2,6 @@
 {
     public interface ILibraryIdentifier : IItemIdentifier
     {
+        string Name { get; }
     }
 }

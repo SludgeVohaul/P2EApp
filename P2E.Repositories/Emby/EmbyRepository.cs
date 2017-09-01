@@ -38,7 +38,8 @@ namespace P2E.Repositories.Emby
                 .ToArray();
         }
 
-        public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(IEmbyClient client, ILibraryIdentifier libraryIdentifier)
+        public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(IEmbyClient client,
+                                                                                                ILibraryIdentifier libraryIdentifier)
         {
             var query = new ItemQuery
             {
@@ -50,16 +51,17 @@ namespace P2E.Repositories.Emby
                 Recursive = true
             };
             var itemsResult = await client.GetItemsAsync(query);
+
             return itemsResult.Items
                 .Select(x => new FilenameIdentifier
                 {
-                    Name = Path.GetFileName(x.Path),
-                    Id = x.Id,
+                    Filename = Path.GetFileName(x.Path),
+                    Id = x.Id
                 })
                 .ToArray();
         }
 
-        public async Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionsAsync(IEmbyClient client)
+        public async Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionIdentifiersAsync(IEmbyClient client)
         {
             var query = new ItemQuery
             {
@@ -67,18 +69,53 @@ namespace P2E.Repositories.Emby
                 // FYI: Collections are folders.
                 Filters = new[] { ItemFilter.IsFolder },
                 IncludeItemTypes = new[] { "Boxset" },
-                Fields = new[] { ItemFields.ParentId },
+                Fields = new[] { ItemFields.Path },
                 Recursive = true
             };
-
             var itemsResult = await client.GetItemsAsync(query);
+
             return itemsResult.Items
                 .Select(x => new CollectionIdentifier
                 {
-                    Name = x.Name,
-                    Id = x.Id,
+                    PathBasename = Path.GetFileName(x.Path)?.Replace(" [boxset]", ""),
+                    Id = x.Id
                 })
                 .ToArray();
+        }
+
+
+        /// <remarks>Please read
+        /// https://emby.media/community/index.php?/topic/50514-apiclient-how-to-check-whether-an-arbitrary-string-matches-an-existing-boxset/
+        /// </remarks>
+        public async Task<ICollectionIdentifier> CreateCollectionAsync(IEmbyClient client, string pathBasename)
+        {
+            var args = new Dictionary<string, string>
+            {
+                {"IsLocked", "false"},
+                {"Name", pathBasename},
+                {"ParentId", ""},
+                {"Ids", ""}
+            };
+            var collectionCreationResult = await client.PostAsync<CollectionCreationResult>(client.GetApiUrl("Collections"), args);
+
+            return new CollectionIdentifier
+            {
+                PathBasename = pathBasename,
+                Id = collectionCreationResult.Id,
+            };
+        }
+
+        /// <remarks>See
+        /// https://github.com/MediaBrowser/Emby/blob/master/MediaBrowser.Api/Movies/CollectionService.cs
+        /// for the POST URL.</remarks>
+        public async Task AddMovieToCollectionAsync(IEmbyClient client, string movieId, string collectionId)
+        {
+            var args = new Dictionary<string, string>
+            {
+                {"Id", collectionId},
+                {"Ids", movieId}
+            };
+            await client.PostAsync<CollectionCreationResult>(client.GetApiUrl($"Collections/{collectionId}/Items"), args);
         }
 
         public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetMovieIdsAsync(IEmbyClient client, string libraryName)
@@ -115,7 +152,7 @@ namespace P2E.Repositories.Emby
             return itemsResult.Items
                 .Select(x => new FilenameIdentifier
                 {
-                    Name = Path.GetFileName(x.Path),
+                    Filename = Path.GetFileName(x.Path),
                     Id = x.Id,
                 })
                 .ToArray();

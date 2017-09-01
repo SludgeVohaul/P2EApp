@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using P2E.Interfaces.DataObjects.Emby.Library;
-using P2E.Interfaces.DataObjects.Plex.Library;
 
 namespace P2E.Interfaces.Services.Emby
 {
@@ -10,8 +9,13 @@ namespace P2E.Interfaces.Services.Emby
         Task<ILibraryIdentifier> GetLibraryIdentifierAsync(string libraryName);
         Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(ILibraryIdentifier libraryIdentifier);
 
-        Task<IMovieUpdateResult> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, IFilenameIdentifier filenameIdentifier);
-        Task<bool> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, string embyLibraryName);
+        Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionIdentifiersAsync();
+        Task<ICollectionIdentifier> CreateCollectionAsync(string collectionName);
+
+        Task<bool> TryAddMovieToCollectionAsync(IFilenameIdentifier filenameIdentifier, ICollectionIdentifier collectionIdentifier);
+
+        //Task<IMovieUpdateResult> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, IFilenameIdentifier filenameIdentifier);
+        //Task<bool> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, string embyLibraryName);
 
     }
 }

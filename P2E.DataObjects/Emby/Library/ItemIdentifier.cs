@@ -5,6 +5,5 @@ namespace P2E.DataObjects.Emby.Library
     public abstract class ItemIdentifier : IItemIdentifier
     {
         public string Id { get; set; }
-        public string Name { get; set; }
     }
 }

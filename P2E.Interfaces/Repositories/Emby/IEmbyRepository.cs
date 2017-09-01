@@ -10,7 +10,11 @@ namespace P2E.Interfaces.Repositories.Emby
         Task<IReadOnlyCollection<ILibraryIdentifier>> GetLibraryIdentifiersAsync(IEmbyClient client);
         Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(IEmbyClient client, ILibraryIdentifier libraryIdentifier);
 
-        Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionsAsync(IEmbyClient client);
+        Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionIdentifiersAsync(IEmbyClient client);
+        Task<ICollectionIdentifier> CreateCollectionAsync(IEmbyClient client, string pathBasename);
+
+        Task AddMovieToCollectionAsync(IEmbyClient client, string movieId, string collectionId);
+
 
         //Task<IList<IMovieIdentifier>> GetMovieIdsAsync(IEmbyClient client, string libraryName);
         //Task GetMovieItemsAsync(string filename, IEmbyClient client);

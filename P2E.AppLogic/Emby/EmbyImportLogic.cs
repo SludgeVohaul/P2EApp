@@ -54,7 +54,7 @@ namespace P2E.AppLogic.Emby
                 return false;
             }
 
-            var embyFiles = filenameIdentifiers.Select(x => x.Name).ToArray();
+            var embyFiles = filenameIdentifiers.Select(x => x.Filename).ToArray();
             var plexFiles = plexMovieMetadataItems.SelectMany(x => x.Filenames).ToArray();
             var filesInBothServers = embyFiles.Intersect(plexFiles).ToArray();
             var filesNotInBothServers = embyFiles.Except(plexFiles).Union(plexFiles.Except(embyFiles)).ToArray();
@@ -64,7 +64,7 @@ namespace P2E.AppLogic.Emby
             // TODO - plexMovieMetadataItems or filenameIdentifiers could be null - handle this.
             var updateResults = await UpdateMoviesAsync(spinWheelService,
                                                         plexMovieMetadataItems.Where(x => x.Filenames.Any(y => filesInBothServers.Contains(y))).ToArray(),
-                                                        filenameIdentifiers.Where(x => filesInBothServers.Contains(x.Name)).ToArray());
+                                                        filenameIdentifiers.Where(x => filesInBothServers.Contains(x.Filename)).ToArray());
 
             //var failedMovieTitles = updateResults.Where(x => x.IsUpdated == false).Select(x => x.Title).ToArray();
             //await LogItemsAsync(Severity.Warn, "Update failed for the following titles", failedMovieTitles);
@@ -122,7 +122,7 @@ namespace P2E.AppLogic.Emby
                 var updateTasks = plexMovieMetadataItems
                     .Select(plexMovieMetaDataItem =>
                     {
-                        var embyFilenameIdentifier = embyFilenameIdentifiers.First(x => plexMovieMetaDataItem.Filenames.Contains(x.Name));
+                        var embyFilenameIdentifier = embyFilenameIdentifiers.First(x => plexMovieMetaDataItem.Filenames.Contains(x.Filename));
                         return embyImportMovieLogic.RunAsync(plexMovieMetaDataItem, embyFilenameIdentifier);
                     })
                     .ToArray();

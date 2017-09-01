@@ -64,7 +64,6 @@
     <Compile Include="DataObjects\Emby\Library\IFilenameIdentifier.cs" />
     <Compile Include="DataObjects\Emby\Library\IItemIdentifier.cs" />
     <Compile Include="DataObjects\Emby\Library\ILibraryIdentifier.cs" />
-    <Compile Include="DataObjects\Emby\Library\IMovieUpdateResult.cs" />
     <Compile Include="DataObjects\IApplicationInformation.cs" />
     <Compile Include="DataObjects\IClient.cs" />
     <Compile Include="DataObjects\IConnectionInformation.cs" />
