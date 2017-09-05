@@ -12,5 +12,7 @@ namespace P2E.DataObjects.Plex.Library
         public string Title { get; set; }
         public string TitleSort { get; set; }
         public string ViewCount { get; set; }
+        public string Thumb { get; set; }
+        public string Art { get; set; }
     }
 }

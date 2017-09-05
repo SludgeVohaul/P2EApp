@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaBrowser.Model.Entities;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.DataObjects.Emby.Library;
 using P2E.Interfaces.Logging;
@@ -27,39 +28,58 @@ namespace P2E.Services.Emby
 
         public async Task<ILibraryIdentifier> GetLibraryIdentifierAsync(string libraryName)
         {
-            var libraryIdentifiers = await _repository.GetLibraryIdentifiersAsync(_client);
-            return libraryIdentifiers.FirstOrDefault(x => x.Name == libraryName);
+            try
+            {
+                var libraryIdentifiers = await _repository.GetLibraryIdentifiersAsync(_client);
+                return libraryIdentifiers.FirstOrDefault(x => x.Name == libraryName);
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, "Failed to get library identifier:");
+                return null;
+            }
         }
 
         public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(
             ILibraryIdentifier libraryIdentifier)
         {
-            return await _repository.GetFilenameIdentifiersAsync(_client, libraryIdentifier);
+            try
+            {
+                return await _repository.GetFilenameIdentifiersAsync(_client, libraryIdentifier);
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, "Failed to get filename identifiers:");
+                return null;
+            }
         }
 
         public async Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionIdentifiersAsync()
         {
-            return (await _repository.GetCollectionIdentifiersAsync(_client)).ToArray();
+            try
+            {
+                return (await _repository.GetCollectionIdentifiersAsync(_client)).ToArray();
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, "Failed to get collection identifiers:");
+                return null;
+            }
         }
 
         public async Task<ICollectionIdentifier> CreateCollectionAsync(string collectionName)
         {
             try
             {
+                _logger.Log(Severity.Info, $"Creating new collection '{collectionName}'.");
                 var collectionIdentifier = await _repository.CreateCollectionAsync(_client, collectionName);
-                _logger.Log(Severity.Info, $"New collection '{collectionIdentifier.PathBasename}'");
-                _logger.Log(Severity.Debug, $"New collection ID: {collectionIdentifier.Id}");
+                _logger.Log(Severity.Debug, $"New collection ID: {collectionIdentifier.Id} Pathname: {collectionIdentifier.PathBasename}");
+
                 return collectionIdentifier;
             }
             catch (Exception ex)
             {
-                _logger.Log(Severity.Error, $"Failed to create collection '{collectionName}':");
-                _logger.Log(Severity.ErrorException, ex.Message);
-                while (ex.InnerException != null)
-                {
-                    _logger.Log(Severity.ErrorException, ex.InnerException.Message);
-                    ex = ex.InnerException;
-                }
+                LogException(ex, $"Failed to create collection '{collectionName}':");
                 return null;
             }
         }
@@ -69,22 +89,59 @@ namespace P2E.Services.Emby
         {
             try
             {
+                _logger.Log(Severity.Info, $"Adding movie to collection '{collectionIdentifier.PathBasename}'.");
                 await _repository.AddMovieToCollectionAsync(_client, filenameIdentifier.Id, collectionIdentifier.Id);
-                _logger.Log(Severity.Info, $"Adding movie to collection '{collectionIdentifier.PathBasename}'");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.Log(Severity.Error, $"Failed to add movie to collection '{collectionIdentifier.PathBasename}':");
-                _logger.Log(Severity.ErrorException, ex.Message);
-                while (ex.InnerException != null)
-                {
-                    _logger.Log(Severity.ErrorException, ex.InnerException.Message);
-                    ex = ex.InnerException;
-                }
+                LogException(ex, $"Failed to add movie to collection '{collectionIdentifier.PathBasename}':");
                 return false;
             }
+        }
 
+        public async Task<bool> TryAddImageToMovie(IFilenameIdentifier filenameIdentifier,
+                                                   ImageType imageType,
+                                                   string imageUrl)
+        {
+            try
+            {
+                _logger.Log(Severity.Info, $"Adding {imageType} image.");
+                await _repository.AddImageToMovie(_client, filenameIdentifier.Id, imageType, imageUrl);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, $"Failed to add {imageType} image:");
+                return false;
+            }
+        }
+
+        public async Task<bool> TryDeleteImagesFromMovie(IFilenameIdentifier filenameIdentifier, ImageType imageType)
+        {
+            try
+            {
+                _logger.Log(Severity.Info, $"Deleting all {imageType} images.");
+                await _repository.DeleteImagesFromMovie(_client, filenameIdentifier.Id, imageType);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, $"Failed to delete {imageType} images:");
+                return false;
+            }
+        }
+
+        private void LogException(Exception ex, string message)
+        {
+            _logger.Log(Severity.Error, message);
+            _logger.Log(Severity.ErrorException, ex.Message);
+            while (ex.InnerException != null)
+            {
+                _logger.Log(Severity.ErrorException, ex.InnerException.Message);
+                ex = ex.InnerException;
+            }
         }
 
 

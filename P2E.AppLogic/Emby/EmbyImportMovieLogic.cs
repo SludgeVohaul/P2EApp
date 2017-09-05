@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaBrowser.Model.Entities;
 using P2E.Interfaces.AppLogic.Emby;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.DataObjects.Emby.Library;
@@ -60,7 +61,22 @@ namespace P2E.AppLogic.Emby
                     return false;
                 }
 
+                // Delete all existing images of a type from movie.
+                if (await embyService.TryDeleteImagesFromMovie(embyFilenameIdentifier, ImageType.Primary) == false
+                    | await embyService.TryDeleteImagesFromMovie(embyFilenameIdentifier, ImageType.Backdrop) == false)
+                {
+                    var msg1 = $"Failed to delete images from  '{plexMovieMetaDataItem.Title}'.";
+                    var msg2 = "Added images will not be displayed.";
+                    _logger.Log(Severity.Warn, $"{msg1}{Environment.NewLine}{msg2}");
+                }
 
+                // Add images to movie.
+                if (await embyService.TryAddImageToMovie(embyFilenameIdentifier, ImageType.Primary, plexMovieMetaDataItem.Thumb) == false
+                    | await embyService.TryAddImageToMovie(embyFilenameIdentifier, ImageType.Backdrop, plexMovieMetaDataItem.Art) == false)
+                {
+                    var msg = $"Failed to add images to '{plexMovieMetaDataItem.Title}'.";
+                    _logger.Log(Severity.Warn, msg);
+                }
 
 
 
@@ -83,9 +99,9 @@ namespace P2E.AppLogic.Emby
             if (plexCollections.Count == 0) return new ICollectionIdentifier[] {};
 
             // Already present Emby collections needed by the movie.
-            var existingMovieCollections = (await service.GetCollectionIdentifiersAsync())
-                .Where(x => plexCollections.Contains(x.PathBasename))
-                .ToList();
+            var embyCollections = await service.GetCollectionIdentifiersAsync();
+            if (embyCollections == null) return null;
+            var existingMovieCollections = new List<ICollectionIdentifier>(embyCollections.Where(x => plexCollections.Contains(x.PathBasename)));
 
             // All collections needed by the movie are already present.
             if (plexCollections.Count == existingMovieCollections.Count) return existingMovieCollections;

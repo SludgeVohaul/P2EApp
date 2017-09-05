@@ -46,6 +46,12 @@ namespace P2E.Repositories.Plex
                     OriginalTitle = x.OriginalTitle,
                     TitleSort = x.TitleSort,
                     ViewCount = x.ViewCount,
+                    Thumb = string.IsNullOrEmpty(x.Thumb) == false && x.Thumb[0] == '/'
+                        ? $"{client.BaseUrl}{x.Thumb.Remove(0,1)}"
+                        : $"{client.BaseUrl}/{x.Thumb}",
+                    Art = string.IsNullOrEmpty(x.Art) == false && x.Art[0] == '/'
+                        ? $"{client.BaseUrl}{x.Art.Remove(0, 1)}"
+                        : $"{client.BaseUrl}/{x.Art}",
                     Collections = x.Collections
                         .Select(c => c.Name).ToList(),
                     Filenames = x.Medias

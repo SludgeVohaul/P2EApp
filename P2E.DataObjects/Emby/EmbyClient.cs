@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Emby.ApiInteraction;
 using Emby.ApiInteraction.Cryptography;
+using Emby.ApiInteraction.Net;
 using MediaBrowser.Model.ApiClient;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
@@ -45,6 +47,28 @@ namespace P2E.DataObjects.Emby
             else
             {
                 await Task.Run(() => { });
+            }
+        }
+
+        /// <remarks>
+        /// This is a copy of the Emby.ApiInteraction.ApiClient.DeleteAsync() method, since the original is private, for whatever reasons.
+        /// The also private method SendAsync is replaced with IAsyncHttpClient.SendAsync which "seems" to work...
+        /// TODO - Once the ApiClient.DeleteAsync() method is public this method should be deleted.
+        /// </remarks>
+        public async Task<T> DeleteAsync<T>(string url, CancellationToken cancellationToken = default(CancellationToken)) where T : class
+        {
+            url = AddDataFormat(url);
+
+            using (var stream = await HttpClient.SendAsync(new HttpRequest
+            {
+                Url = url,
+                CancellationToken = cancellationToken,
+                RequestHeaders = HttpHeaders,
+                Method = "DELETE"
+
+            }).ConfigureAwait(false))
+            {
+                return DeserializeFromStream<T>(stream);
             }
         }
     }

@@ -121,6 +121,35 @@ namespace P2E.Repositories.Emby
             await client.PostAsync<Task>(url, args);
         }
 
+        public async Task AddImageToMovie(IEmbyClient client, string movieId, ImageType imageType, string imageUrl)
+        {
+            var args = new Dictionary<string, string>
+            {
+                // TODO - is the Id item necessary?
+                {"Id", movieId},
+                {"Type", imageType.ToString()},
+                {"ImageUrl", imageUrl},
+            };
+
+            var url = client.GetApiUrl($"Items/{movieId}/RemoteImages/Download");
+            await client.PostAsync<EmptyRequestResult>(url, args);
+        }
+
+        public async Task DeleteImagesFromMovie(IEmbyClient client, string movieId, ImageType imageType)
+        {
+            // TODO - This might not work properly - check if all images of the provided type really get deleted.
+            var url = client.GetApiUrl($"Items/{movieId}/Images/{imageType}");
+            await client.DeleteAsync<EmptyRequestResult>(url);
+        }
+
+
+
+
+
+
+
+
+
         public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetMovieIdsAsync(IEmbyClient client, string libraryName)
         {
             var query = new ItemQuery

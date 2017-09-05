@@ -48,7 +48,7 @@ namespace P2E.AppLogic.Emby
             }
 
             var filenameIdentifiers = await GetFilenameIdentifiersAsync(embyService, spinWheelService, libraryIdentifier);
-            if (filenameIdentifiers.Any() == false)
+            if (filenameIdentifiers == null || filenameIdentifiers.Any() == false)
             {
                 _logger.Error($"No movie files found in Emby library '{libraryIdentifier.Name}'.");
                 return false;
@@ -61,11 +61,12 @@ namespace P2E.AppLogic.Emby
 
             await LogItemsAsync(Severity.Warn, "Following filenames do not exist in both servers:", filesNotInBothServers);
 
-            // TODO - plexMovieMetadataItems or filenameIdentifiers could be null - handle this.
+            // TODO - plexMovieMetadataItems could be null - handle this.
             var updateResults = await UpdateMoviesAsync(spinWheelService,
                                                         plexMovieMetadataItems.Where(x => x.Filenames.Any(y => filesInBothServers.Contains(y))).ToArray(),
                                                         filenameIdentifiers.Where(x => filesInBothServers.Contains(x.Filename)).ToArray());
 
+            // TODO - output some summary at the end?
             //var failedMovieTitles = updateResults.Where(x => x.IsUpdated == false).Select(x => x.Title).ToArray();
             //await LogItemsAsync(Severity.Warn, "Update failed for the following titles", failedMovieTitles);
 

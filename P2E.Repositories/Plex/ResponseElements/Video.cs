@@ -16,5 +16,9 @@ namespace P2E.Repositories.Plex.ResponseElements
         public string TitleSort { get; set; }
         [DeserializeAs(Name = "viewCount")]
         public string ViewCount { get; set; }
+        [DeserializeAs(Name = "thumb")]
+        public string Thumb { get; set; }
+        [DeserializeAs(Name = "art")]
+        public string Art { get; set; }
     }
 }

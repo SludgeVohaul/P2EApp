@@ -4,12 +4,15 @@ namespace P2E.Interfaces.DataObjects.Plex.Library
 {
     public interface IPlexMovieMetadata
     {
-        List<string> Collections { get; set; }
-        List<string> Filenames { get; set; }
+        List<string> Collections { get; }
+        List<string> Filenames { get; }
 
-        string OriginalTitle { get; set; }
-        string Title { get; set; }
-        string TitleSort { get; set; }
-        string ViewCount { get; set; }
+        string OriginalTitle { get; }
+        string Title { get; }
+        string TitleSort { get; }
+        string ViewCount { get; }
+
+        string Thumb { get; }
+        string Art { get; }
     }
 }
