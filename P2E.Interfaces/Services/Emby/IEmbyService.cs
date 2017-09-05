@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediaBrowser.Model.Entities;
 using P2E.Interfaces.DataObjects.Emby.Library;
@@ -14,7 +15,7 @@ namespace P2E.Interfaces.Services.Emby
         Task<ICollectionIdentifier> CreateCollectionAsync(string collectionName);
 
         Task<bool> TryAddMovieToCollectionAsync(IFilenameIdentifier filenameIdentifier, ICollectionIdentifier collectionIdentifier);
-        Task<bool> TryAddImageToMovieAsync(IFilenameIdentifier filenameIdentifier, ImageType imageType, string imageUrl);
+        Task<bool> TryAddImageToMovieAsync(IFilenameIdentifier filenameIdentifier, ImageType imageType, Uri imageUrl);
         Task<bool> TryDeleteImagesFromMovieAsync(IFilenameIdentifier filenameIdentifier, ImageType imageType);
 
 

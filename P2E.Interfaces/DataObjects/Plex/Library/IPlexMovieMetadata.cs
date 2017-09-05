@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace P2E.Interfaces.DataObjects.Plex.Library
 {
@@ -12,7 +13,7 @@ namespace P2E.Interfaces.DataObjects.Plex.Library
         string TitleSort { get; }
         string ViewCount { get; }
 
-        string Thumb { get; }
-        string Art { get; }
+        Uri ThumbUri { get; }
+        Uri ArtUri { get; }
     }
 }

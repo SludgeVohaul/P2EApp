@@ -71,8 +71,8 @@ namespace P2E.AppLogic.Emby
                 }
 
                 // Add images to movie.
-                if (await embyService.TryAddImageToMovieAsync(embyFilenameIdentifier, ImageType.Primary, plexMovieMetaDataItem.Thumb) == false
-                    | await embyService.TryAddImageToMovieAsync(embyFilenameIdentifier, ImageType.Backdrop, plexMovieMetaDataItem.Art) == false)
+                if (await embyService.TryAddImageToMovieAsync(embyFilenameIdentifier, ImageType.Primary, plexMovieMetaDataItem.ThumbUri) == false
+                    | await embyService.TryAddImageToMovieAsync(embyFilenameIdentifier, ImageType.Backdrop, plexMovieMetaDataItem.ArtUri) == false)
                 {
                     var msg = $"Failed to add images to '{plexMovieMetaDataItem.Title}'.";
                     _logger.Log(Severity.Warn, msg);

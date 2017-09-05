@@ -101,11 +101,16 @@ namespace P2E.Services.Emby
         }
 
         public async Task<bool> TryAddImageToMovieAsync(IFilenameIdentifier filenameIdentifier,
-                                                   ImageType imageType,
-                                                   string imageUrl)
+                                                        ImageType imageType, Uri imageUrl)
         {
             try
             {
+                if (imageUrl == null)
+                {
+                    _logger.Log(Severity.Warn, $"No {imageType} image available.");
+                    return true;
+                }
+
                 _logger.Log(Severity.Info, $"Adding {imageType} image.");
                 await _repository.AddImageToMovieAsync(_client, filenameIdentifier.Id, imageType, imageUrl);
                 return true;

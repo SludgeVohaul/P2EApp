@@ -121,14 +121,14 @@ namespace P2E.Repositories.Emby
             await client.PostAsync<Task>(url, args);
         }
 
-        public async Task AddImageToMovieAsync(IEmbyClient client, string movieId, ImageType imageType, string imageUrl)
+        public async Task AddImageToMovieAsync(IEmbyClient client, string movieId, ImageType imageType, Uri imageUrl)
         {
             var args = new Dictionary<string, string>
             {
                 // TODO - is the Id item necessary?
                 {"Id", movieId},
                 {"Type", imageType.ToString()},
-                {"ImageUrl", imageUrl},
+                {"ImageUrl", imageUrl.AbsoluteUri},
             };
 
             var url = client.GetApiUrl($"Items/{movieId}/RemoteImages/Download");
