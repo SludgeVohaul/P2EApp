@@ -62,8 +62,8 @@ namespace P2E.AppLogic.Emby
                 }
 
                 // Delete all existing images of a type from movie.
-                if (await embyService.TryDeleteImagesFromMovie(embyFilenameIdentifier, ImageType.Primary) == false
-                    | await embyService.TryDeleteImagesFromMovie(embyFilenameIdentifier, ImageType.Backdrop) == false)
+                if (await embyService.TryDeleteImagesFromMovieAsync(embyFilenameIdentifier, ImageType.Primary) == false
+                    | await embyService.TryDeleteImagesFromMovieAsync(embyFilenameIdentifier, ImageType.Backdrop) == false)
                 {
                     var msg1 = $"Failed to delete images from  '{plexMovieMetaDataItem.Title}'.";
                     var msg2 = "Added images will not be displayed.";
@@ -71,8 +71,8 @@ namespace P2E.AppLogic.Emby
                 }
 
                 // Add images to movie.
-                if (await embyService.TryAddImageToMovie(embyFilenameIdentifier, ImageType.Primary, plexMovieMetaDataItem.Thumb) == false
-                    | await embyService.TryAddImageToMovie(embyFilenameIdentifier, ImageType.Backdrop, plexMovieMetaDataItem.Art) == false)
+                if (await embyService.TryAddImageToMovieAsync(embyFilenameIdentifier, ImageType.Primary, plexMovieMetaDataItem.Thumb) == false
+                    | await embyService.TryAddImageToMovieAsync(embyFilenameIdentifier, ImageType.Backdrop, plexMovieMetaDataItem.Art) == false)
                 {
                     var msg = $"Failed to add images to '{plexMovieMetaDataItem.Title}'.";
                     _logger.Log(Severity.Warn, msg);

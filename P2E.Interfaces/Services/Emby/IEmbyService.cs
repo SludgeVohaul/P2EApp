@@ -14,8 +14,8 @@ namespace P2E.Interfaces.Services.Emby
         Task<ICollectionIdentifier> CreateCollectionAsync(string collectionName);
 
         Task<bool> TryAddMovieToCollectionAsync(IFilenameIdentifier filenameIdentifier, ICollectionIdentifier collectionIdentifier);
-        Task<bool> TryAddImageToMovie(IFilenameIdentifier filenameIdentifier, ImageType imageType, string imageUrl);
-        Task<bool> TryDeleteImagesFromMovie(IFilenameIdentifier filenameIdentifier, ImageType imageType);
+        Task<bool> TryAddImageToMovieAsync(IFilenameIdentifier filenameIdentifier, ImageType imageType, string imageUrl);
+        Task<bool> TryDeleteImagesFromMovieAsync(IFilenameIdentifier filenameIdentifier, ImageType imageType);
 
 
         //Task<IMovieUpdateResult> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, IFilenameIdentifier filenameIdentifier);

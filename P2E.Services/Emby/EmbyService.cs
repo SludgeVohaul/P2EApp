@@ -100,14 +100,14 @@ namespace P2E.Services.Emby
             }
         }
 
-        public async Task<bool> TryAddImageToMovie(IFilenameIdentifier filenameIdentifier,
+        public async Task<bool> TryAddImageToMovieAsync(IFilenameIdentifier filenameIdentifier,
                                                    ImageType imageType,
                                                    string imageUrl)
         {
             try
             {
                 _logger.Log(Severity.Info, $"Adding {imageType} image.");
-                await _repository.AddImageToMovie(_client, filenameIdentifier.Id, imageType, imageUrl);
+                await _repository.AddImageToMovieAsync(_client, filenameIdentifier.Id, imageType, imageUrl);
                 return true;
             }
             catch (Exception ex)
@@ -117,12 +117,12 @@ namespace P2E.Services.Emby
             }
         }
 
-        public async Task<bool> TryDeleteImagesFromMovie(IFilenameIdentifier filenameIdentifier, ImageType imageType)
+        public async Task<bool> TryDeleteImagesFromMovieAsync(IFilenameIdentifier filenameIdentifier, ImageType imageType)
         {
             try
             {
                 _logger.Log(Severity.Info, $"Deleting all {imageType} images.");
-                await _repository.DeleteImagesFromMovie(_client, filenameIdentifier.Id, imageType);
+                await _repository.DeleteImagesFromMovieAsync(_client, filenameIdentifier.Id, imageType);
 
                 return true;
             }

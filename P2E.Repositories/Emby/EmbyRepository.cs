@@ -121,7 +121,7 @@ namespace P2E.Repositories.Emby
             await client.PostAsync<Task>(url, args);
         }
 
-        public async Task AddImageToMovie(IEmbyClient client, string movieId, ImageType imageType, string imageUrl)
+        public async Task AddImageToMovieAsync(IEmbyClient client, string movieId, ImageType imageType, string imageUrl)
         {
             var args = new Dictionary<string, string>
             {
@@ -135,9 +135,10 @@ namespace P2E.Repositories.Emby
             await client.PostAsync<EmptyRequestResult>(url, args);
         }
 
-        public async Task DeleteImagesFromMovie(IEmbyClient client, string movieId, ImageType imageType)
+        public async Task DeleteImagesFromMovieAsync(IEmbyClient client, string movieId, ImageType imageType)
         {
-            // TODO - This might not work properly - check if all images of the provided type really get deleted.
+            // TODO - This does not delete all images of the provided type.
+            // TODO - With default index, only the image at index=0 (the leftmost in browser UI) is deleted.
             var url = client.GetApiUrl($"Items/{movieId}/Images/{imageType}");
             await client.DeleteAsync<EmptyRequestResult>(url);
         }

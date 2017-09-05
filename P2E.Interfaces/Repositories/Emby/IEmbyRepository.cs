@@ -15,8 +15,8 @@ namespace P2E.Interfaces.Repositories.Emby
         Task<ICollectionIdentifier> CreateCollectionAsync(IEmbyClient client, string pathBasename);
 
         Task AddMovieToCollectionAsync(IEmbyClient client, string movieId, string collectionId);
-        Task AddImageToMovie(IEmbyClient client, string movieId, ImageType imageType, string imageUrl);
-        Task DeleteImagesFromMovie(IEmbyClient client, string movieId, ImageType imageType);
+        Task AddImageToMovieAsync(IEmbyClient client, string movieId, ImageType imageType, string imageUrl);
+        Task DeleteImagesFromMovieAsync(IEmbyClient client, string movieId, ImageType imageType);
 
 
         //Task<IList<IMovieIdentifier>> GetMovieIdsAsync(IEmbyClient client, string libraryName);
