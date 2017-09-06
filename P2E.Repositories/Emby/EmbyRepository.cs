@@ -38,7 +38,7 @@ namespace P2E.Repositories.Emby
                 .ToArray();
         }
 
-        public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(IEmbyClient client,
+        public async Task<IReadOnlyCollection<IMovieIdentifier>> GetMovieIdentifiersAsync(IEmbyClient client,
                                                                                                 ILibraryIdentifier libraryIdentifier)
         {
             var query = new ItemQuery
@@ -53,7 +53,7 @@ namespace P2E.Repositories.Emby
             var itemsResult = await client.GetItemsAsync(query);
 
             return itemsResult.Items
-                .Select(x => new FilenameIdentifier
+                .Select(x => new MovieIdentifier
                 {
                     Filename = Path.GetFileName(x.Path),
                     Id = x.Id
@@ -151,7 +151,7 @@ namespace P2E.Repositories.Emby
 
 
 
-        public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetMovieIdsAsync(IEmbyClient client, string libraryName)
+        public async Task<IReadOnlyCollection<IMovieIdentifier>> GetMovieIdsAsync(IEmbyClient client, string libraryName)
         {
             var query = new ItemQuery
             {
@@ -183,7 +183,7 @@ namespace P2E.Repositories.Emby
             var viewiddto = await client.GetItemAsync("33a3ebcb3615fbc88bdfacf96075317e", client.CurrentUserId);
 
             return itemsResult.Items
-                .Select(x => new FilenameIdentifier
+                .Select(x => new MovieIdentifier
                 {
                     Filename = Path.GetFileName(x.Path),
                     Id = x.Id,

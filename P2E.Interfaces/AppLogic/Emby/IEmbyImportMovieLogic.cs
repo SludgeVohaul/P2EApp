@@ -9,6 +9,6 @@ namespace P2E.Interfaces.AppLogic.Emby
     {
         event EventHandler ItemProcessed;
 
-        Task<bool> RunAsync(IPlexMovieMetadata plexMovieMetaDataItem, IFilenameIdentifier embyFilenameIdentifier);
+        Task<bool> RunAsync(IPlexMovieMetadata plexMovieMetaDataItem, IMovieIdentifier embyMovieIdentifier);
     }
 }

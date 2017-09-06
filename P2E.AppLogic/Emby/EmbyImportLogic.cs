@@ -47,24 +47,24 @@ namespace P2E.AppLogic.Emby
                 return false;
             }
 
-            var filenameIdentifiers = await GetFilenameIdentifiersAsync(embyService, spinWheelService, libraryIdentifier);
-            if (filenameIdentifiers == null || filenameIdentifiers.Any() == false)
+            var movieIdentifiers = await GetMovieIdentifiersAsync(embyService, spinWheelService, libraryIdentifier);
+            if (movieIdentifiers == null || movieIdentifiers.Any() == false)
             {
                 _logger.Error($"No movie files found in Emby library '{libraryIdentifier.Name}'.");
                 return false;
             }
 
-            var embyFiles = filenameIdentifiers.Select(x => x.Filename).ToArray();
+            var embyFiles = movieIdentifiers.Select(x => x.Filename).ToArray();
             var plexFiles = plexMovieMetadataItems.SelectMany(x => x.Filenames).ToArray();
             var filesInBothServers = embyFiles.Intersect(plexFiles).ToArray();
             var filesNotInBothServers = embyFiles.Except(plexFiles).Union(plexFiles.Except(embyFiles)).ToArray();
 
-            await LogItemsAsync(Severity.Warn, "Following filenames do not exist in both servers:", filesNotInBothServers);
+            await LogItemsAsync(Severity.Warn, "Following files do not exist in both servers:", filesNotInBothServers);
 
             // TODO - plexMovieMetadataItems could be null - handle this.
             var updateResults = await UpdateMoviesAsync(spinWheelService,
                                                         plexMovieMetadataItems.Where(x => x.Filenames.Any(y => filesInBothServers.Contains(y))).ToArray(),
-                                                        filenameIdentifiers.Where(x => filesInBothServers.Contains(x.Filename)).ToArray());
+                                                        movieIdentifiers.Where(x => filesInBothServers.Contains(x.Filename)).ToArray());
 
             // TODO - output some summary at the end?
             //var failedMovieTitles = updateResults.Where(x => x.IsUpdated == false).Select(x => x.Title).ToArray();
@@ -90,7 +90,7 @@ namespace P2E.AppLogic.Emby
             }
         }
 
-        private static async Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(IEmbyService embyService,
+        private static async Task<IReadOnlyCollection<IMovieIdentifier>> GetMovieIdentifiersAsync(IEmbyService embyService,
                                                                                                         ISpinWheelService spinWheelService,
                                                                                                         ILibraryIdentifier libraryIdentifier)
         {
@@ -98,7 +98,7 @@ namespace P2E.AppLogic.Emby
             try
             {
                 await spinWheelService.StartSpinWheelAsync(cts.Token);
-                return await embyService.GetFilenameIdentifiersAsync(libraryIdentifier);
+                return await embyService.GetMovieIdentifiersAsync(libraryIdentifier);
             }
             finally
             {
@@ -109,7 +109,7 @@ namespace P2E.AppLogic.Emby
 
         private async Task<IReadOnlyCollection<bool>> UpdateMoviesAsync(ISpinWheelService spinWheelService,
                                                                         IReadOnlyCollection<IPlexMovieMetadata> plexMovieMetadataItems,
-                                                                        IReadOnlyCollection<IFilenameIdentifier> embyFilenameIdentifiers)
+                                                                        IReadOnlyCollection<IMovieIdentifier> embyMovieIdentifiers)
         {
             var cts = new CancellationTokenSource();
             IEmbyImportMovieLogic embyImportMovieLogic = null;
@@ -123,8 +123,8 @@ namespace P2E.AppLogic.Emby
                 var updateTasks = plexMovieMetadataItems
                     .Select(plexMovieMetaDataItem =>
                     {
-                        var embyFilenameIdentifier = embyFilenameIdentifiers.First(x => plexMovieMetaDataItem.Filenames.Contains(x.Filename));
-                        return embyImportMovieLogic.RunAsync(plexMovieMetaDataItem, embyFilenameIdentifier);
+                        var embyMovieIdentifier = embyMovieIdentifiers.First(x => plexMovieMetaDataItem.Filenames.Contains(x.Filename));
+                        return embyImportMovieLogic.RunAsync(plexMovieMetaDataItem, embyMovieIdentifier);
                     })
                     .ToArray();
 

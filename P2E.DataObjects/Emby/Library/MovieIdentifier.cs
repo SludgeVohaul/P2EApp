@@ -2,7 +2,7 @@
 
 namespace P2E.DataObjects.Emby.Library
 {
-    public class FilenameIdentifier : ItemIdentifier, IFilenameIdentifier
+    public class MovieIdentifier : ItemIdentifier, IMovieIdentifier
     {
         public string Filename { get; set; }
     }

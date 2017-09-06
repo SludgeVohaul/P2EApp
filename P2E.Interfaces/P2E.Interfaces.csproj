@@ -61,7 +61,7 @@
     <Compile Include="CommandLine\ServerOptions\IConsoleEmbyInstance1ConnectionOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsolePlexInstance1ConnectionOptions.cs" />
     <Compile Include="DataObjects\Emby\Library\ICollectionIdentifier.cs" />
-    <Compile Include="DataObjects\Emby\Library\IFilenameIdentifier.cs" />
+    <Compile Include="DataObjects\Emby\Library\IMovieIdentifier.cs" />
     <Compile Include="DataObjects\Emby\Library\IItemIdentifier.cs" />
     <Compile Include="DataObjects\Emby\Library\ILibraryIdentifier.cs" />
     <Compile Include="DataObjects\IApplicationInformation.cs" />

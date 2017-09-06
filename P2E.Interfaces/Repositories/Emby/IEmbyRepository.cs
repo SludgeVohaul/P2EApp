@@ -10,7 +10,7 @@ namespace P2E.Interfaces.Repositories.Emby
     public interface IEmbyRepository : IRepository
     {
         Task<IReadOnlyCollection<ILibraryIdentifier>> GetLibraryIdentifiersAsync(IEmbyClient client);
-        Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(IEmbyClient client, ILibraryIdentifier libraryIdentifier);
+        Task<IReadOnlyCollection<IMovieIdentifier>> GetMovieIdentifiersAsync(IEmbyClient client, ILibraryIdentifier libraryIdentifier);
 
         Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionIdentifiersAsync(IEmbyClient client);
         Task<ICollectionIdentifier> CreateCollectionAsync(IEmbyClient client, string pathBasename);

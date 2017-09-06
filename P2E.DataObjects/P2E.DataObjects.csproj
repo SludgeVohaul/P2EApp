@@ -55,7 +55,7 @@
     <Compile Include="Emby\EmbyClient.cs" />
     <Compile Include="Emby\Device.cs" />
     <Compile Include="Emby\Library\CollectionIdentifier.cs" />
-    <Compile Include="Emby\Library\FilenameIdentifier.cs" />
+    <Compile Include="Emby\Library\MovieIdentifier.cs" />
     <Compile Include="Emby\Library\ItemIdentifier.cs" />
     <Compile Include="Emby\Library\LibraryIdentifier.cs" />
     <Compile Include="Plex\Library\PlexMovieMetadata.cs" />

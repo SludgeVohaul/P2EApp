@@ -35,7 +35,7 @@ namespace P2E.AppLogic.Emby
             _client = client;
         }
 
-        public async Task<bool> RunAsync(IPlexMovieMetadata plexMovieMetaDataItem, IFilenameIdentifier embyFilenameIdentifier)
+        public async Task<bool> RunAsync(IPlexMovieMetadata plexMovieMetaDataItem, IMovieIdentifier embyMovieIdentifier)
         {
             await SemSlim.WaitAsync();
             try
@@ -54,7 +54,7 @@ namespace P2E.AppLogic.Emby
                 }
 
                 // Add the movie to all collections.
-                if ((await Task.WhenAll(collectionIdentifiers.Select(x => embyService.TryAddMovieToCollectionAsync(embyFilenameIdentifier, x)))).Any(x => x == false))
+                if ((await Task.WhenAll(collectionIdentifiers.Select(x => embyService.TryAddMovieToCollectionAsync(embyMovieIdentifier, x)))).Any(x => x == false))
                 {
                     var msg = $"Failed to add '{plexMovieMetaDataItem.Title}' to provided collections. Import aborted.";
                     _logger.Log(Severity.Error, msg);
@@ -62,8 +62,8 @@ namespace P2E.AppLogic.Emby
                 }
 
                 // Delete all existing images of a type from movie.
-                if (await embyService.TryDeleteImagesFromMovieAsync(embyFilenameIdentifier, ImageType.Primary) == false
-                    | await embyService.TryDeleteImagesFromMovieAsync(embyFilenameIdentifier, ImageType.Backdrop) == false)
+                if (await embyService.TryDeleteImagesFromMovieAsync(embyMovieIdentifier, ImageType.Primary) == false
+                    | await embyService.TryDeleteImagesFromMovieAsync(embyMovieIdentifier, ImageType.Backdrop) == false)
                 {
                     var msg1 = $"Failed to delete images from  '{plexMovieMetaDataItem.Title}'.";
                     var msg2 = "Added images will not be displayed.";
@@ -71,8 +71,8 @@ namespace P2E.AppLogic.Emby
                 }
 
                 // Add images to movie.
-                if (await embyService.TryAddImageToMovieAsync(embyFilenameIdentifier, ImageType.Primary, plexMovieMetaDataItem.ThumbUri) == false
-                    | await embyService.TryAddImageToMovieAsync(embyFilenameIdentifier, ImageType.Backdrop, plexMovieMetaDataItem.ArtUri) == false)
+                if (await embyService.TryAddImageToMovieAsync(embyMovieIdentifier, ImageType.Primary, plexMovieMetaDataItem.ThumbUri) == false
+                    | await embyService.TryAddImageToMovieAsync(embyMovieIdentifier, ImageType.Backdrop, plexMovieMetaDataItem.ArtUri) == false)
                 {
                     var msg = $"Failed to add images to '{plexMovieMetaDataItem.Title}'.";
                     _logger.Log(Severity.Warn, msg);

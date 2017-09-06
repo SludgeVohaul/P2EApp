@@ -1,6 +1,6 @@
 ﻿namespace P2E.Interfaces.DataObjects.Emby.Library
 {
-    public interface IFilenameIdentifier : IItemIdentifier
+    public interface IMovieIdentifier : IItemIdentifier
     {
         string Filename { get; }
     }

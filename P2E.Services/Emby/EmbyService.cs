@@ -40,16 +40,15 @@ namespace P2E.Services.Emby
             }
         }
 
-        public async Task<IReadOnlyCollection<IFilenameIdentifier>> GetFilenameIdentifiersAsync(
-            ILibraryIdentifier libraryIdentifier)
+        public async Task<IReadOnlyCollection<IMovieIdentifier>> GetMovieIdentifiersAsync(ILibraryIdentifier libraryIdentifier)
         {
             try
             {
-                return await _repository.GetFilenameIdentifiersAsync(_client, libraryIdentifier);
+                return await _repository.GetMovieIdentifiersAsync(_client, libraryIdentifier);
             }
             catch (Exception ex)
             {
-                LogException(ex, "Failed to get filename identifiers:");
+                LogException(ex, "Failed to get movie identifiers:");
                 return null;
             }
         }
@@ -84,13 +83,13 @@ namespace P2E.Services.Emby
             }
         }
 
-        public async Task<bool> TryAddMovieToCollectionAsync(IFilenameIdentifier filenameIdentifier,
+        public async Task<bool> TryAddMovieToCollectionAsync(IMovieIdentifier movieIdentifier,
                                                              ICollectionIdentifier collectionIdentifier)
         {
             try
             {
                 _logger.Log(Severity.Info, $"Adding movie to collection '{collectionIdentifier.PathBasename}'.");
-                await _repository.AddMovieToCollectionAsync(_client, filenameIdentifier.Id, collectionIdentifier.Id);
+                await _repository.AddMovieToCollectionAsync(_client, movieIdentifier.Id, collectionIdentifier.Id);
                 return true;
             }
             catch (Exception ex)
@@ -100,7 +99,7 @@ namespace P2E.Services.Emby
             }
         }
 
-        public async Task<bool> TryAddImageToMovieAsync(IFilenameIdentifier filenameIdentifier,
+        public async Task<bool> TryAddImageToMovieAsync(IMovieIdentifier movieIdentifier,
                                                         ImageType imageType, Uri imageUrl)
         {
             try
@@ -112,7 +111,7 @@ namespace P2E.Services.Emby
                 }
 
                 _logger.Log(Severity.Info, $"Adding {imageType} image.");
-                await _repository.AddImageToMovieAsync(_client, filenameIdentifier.Id, imageType, imageUrl);
+                await _repository.AddImageToMovieAsync(_client, movieIdentifier.Id, imageType, imageUrl);
                 return true;
             }
             catch (Exception ex)
@@ -122,12 +121,12 @@ namespace P2E.Services.Emby
             }
         }
 
-        public async Task<bool> TryDeleteImagesFromMovieAsync(IFilenameIdentifier filenameIdentifier, ImageType imageType)
+        public async Task<bool> TryDeleteImagesFromMovieAsync(IMovieIdentifier movieIdentifier, ImageType imageType)
         {
             try
             {
                 _logger.Log(Severity.Info, $"Deleting all {imageType} images.");
-                await _repository.DeleteImagesFromMovieAsync(_client, filenameIdentifier.Id, imageType);
+                await _repository.DeleteImagesFromMovieAsync(_client, movieIdentifier.Id, imageType);
 
                 return true;
             }
@@ -150,7 +149,7 @@ namespace P2E.Services.Emby
         }
 
 
-        //public async Task<IMovieUpdateResult> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, IFilenameIdentifier filenameIdentifier)
+        //public async Task<IMovieUpdateResult> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, IMovieIdentifier movieIdentifier)
         //{
 
 
@@ -159,7 +158,7 @@ namespace P2E.Services.Emby
         //    _logger.Info($"Processing {plexMovieMetadata.Title}");
         //    return new MovieUpdateResult
         //    {
-        //        Filename = filenameIdentifier.Filename,
+        //        Filename = movieIdentifier.Filename,
         //        Title = plexMovieMetadata.Title,
         //        IsUpdated = false
         //    };
