@@ -123,7 +123,7 @@ namespace P2E.Logging
 
         private string GetTimestamp()
         {
-            return DateTime.UtcNow.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
+            return DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
         }
 
         private ConsoleColor GetSeverityForegroundColor(Severity severity)
