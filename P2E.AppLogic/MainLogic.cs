@@ -116,9 +116,8 @@ namespace P2E.AppLogic
         {
             try
             {
-                //sawait Task.Delay(4000);
+                _logger.Info($"Logging into '{client.ServerType}'.");
                 await client.LoginAsync();
-                _logger.Info($"Logged into '{client.ServerType}'.");
                 return true;
             }
             catch (Exception ex)

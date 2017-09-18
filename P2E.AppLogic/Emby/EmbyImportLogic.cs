@@ -62,7 +62,7 @@ namespace P2E.AppLogic.Emby
             await LogItemsAsync(Severity.Warn, "Following files do not exist in both servers:", filesNotInBothServers);
 
             // TODO - plexMovieMetadataItems could be null - handle this.
-            var updateResults = await UpdateMoviesAsync(spinWheelService,
+            var didUpdateMovies = await UpdateMoviesAsync(spinWheelService,
                                                         plexMovieMetadataItems.Where(x => x.Filenames.Any(y => filesInBothServers.Contains(y))).ToArray(),
                                                         movieIdentifiers.Where(x => filesInBothServers.Contains(x.Filename)).ToArray());
 
@@ -70,7 +70,7 @@ namespace P2E.AppLogic.Emby
             //var failedMovieTitles = updateResults.Where(x => x.IsUpdated == false).Select(x => x.Title).ToArray();
             //await LogItemsAsync(Severity.Warn, "Update failed for the following titles", failedMovieTitles);
 
-            return updateResults.All(x => x);
+            return didUpdateMovies.All(x => x);
         }
 
         private static async Task<ILibraryIdentifier> GetLibraryIdentifierAsync(IEmbyService embyService,

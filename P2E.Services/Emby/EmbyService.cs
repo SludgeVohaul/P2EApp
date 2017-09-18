@@ -13,8 +13,6 @@ namespace P2E.Services.Emby
 {
     public class EmbyService : IEmbyService
     {
-
-
         private readonly IEmbyClient _client;
         private readonly IAppLogger _logger;
         private readonly IEmbyRepository _repository;
@@ -40,11 +38,12 @@ namespace P2E.Services.Emby
             }
         }
 
-        public async Task<IReadOnlyCollection<IMovieIdentifier>> GetMovieIdentifiersAsync(ILibraryIdentifier libraryIdentifier)
+        public async Task<IReadOnlyCollection<IMovieIdentifier>> GetMovieIdentifiersAsync(
+            ILibraryIdentifier libraryIdentifier)
         {
             try
             {
-                return await _repository.GetMovieIdentifiersAsync(_client, libraryIdentifier);
+                return await _repository.GetMovieIdentifiersAsync(_client, libraryIdentifier.Id);
             }
             catch (Exception ex)
             {
@@ -72,7 +71,8 @@ namespace P2E.Services.Emby
             {
                 _logger.Log(Severity.Info, $"Creating new collection '{collectionName}'.");
                 var collectionIdentifier = await _repository.CreateCollectionAsync(_client, collectionName);
-                _logger.Log(Severity.Debug, $"New collection ID: {collectionIdentifier.Id} Pathname: {collectionIdentifier.PathBasename}");
+                _logger.Log(Severity.Debug,
+                    $"New collection ID: {collectionIdentifier.Id} Pathname: {collectionIdentifier.PathBasename}");
 
                 return collectionIdentifier;
             }
@@ -99,19 +99,27 @@ namespace P2E.Services.Emby
             }
         }
 
-        public async Task<bool> TryAddImageToMovieAsync(IMovieIdentifier movieIdentifier,
-                                                        ImageType imageType, Uri imageUrl)
+        /// <remarks>
+        /// There is no way to tell the server to display the added image. One has to
+        /// assume that the added image is the one with the highest index. See
+        /// https://emby.media/community/index.php?/topic/50676-how-to-re-index-a-new-remoteimage-of-an-item/
+        /// Therefore adding, finding and re-indexing is all done in this method as tearing it apart
+        /// would increase chances that the last image is not the just added one anymore.
+        /// </remarks>
+        public async Task<bool> TryAddImageToMovieAsync(ImageType imageType,
+                                                        Uri imageUrl,
+                                                        IMovieIdentifier movieIdentifier)
         {
+            if (imageUrl == null)
+            {
+                _logger.Log(Severity.Warn, $"No {imageType} image available.");
+                return true;
+            }
+
             try
             {
-                if (imageUrl == null)
-                {
-                    _logger.Log(Severity.Warn, $"No {imageType} image available.");
-                    return true;
-                }
-
                 _logger.Log(Severity.Info, $"Adding {imageType} image.");
-                await _repository.AddImageToMovieAsync(_client, movieIdentifier.Id, imageType, imageUrl);
+                await _repository.AddImageToMovieAsync(_client, imageType, imageUrl, movieIdentifier.Id);
                 return true;
             }
             catch (Exception ex)
@@ -121,18 +129,56 @@ namespace P2E.Services.Emby
             }
         }
 
-        public async Task<bool> TryDeleteImagesFromMovieAsync(IMovieIdentifier movieIdentifier, ImageType imageType)
+        public async Task<bool> TryDeleteImageFromMovieAsync(ImageType imageType,
+                                                             int imageIndex,
+                                                             IMovieIdentifier movieIdentifier)
         {
             try
             {
-                _logger.Log(Severity.Info, $"Deleting all {imageType} images.");
-                await _repository.DeleteImagesFromMovieAsync(_client, movieIdentifier.Id, imageType);
-
+                _logger.Log(Severity.Info, $"Deleting {imageType} image.");
+                await _repository.DeleteImageFromMovieAsync(_client, imageType, imageIndex, movieIdentifier.Id);
                 return true;
             }
             catch (Exception ex)
             {
-                LogException(ex, $"Failed to delete {imageType} images:");
+                LogException(ex, $"Failed to delete {imageType} image at index {imageIndex}:");
+                return false;
+            }
+        }
+
+        public async Task<int?> GetMaxImageIndex(ImageType imageType, IMovieIdentifier movieIdentifier)
+        {
+            try
+            {
+                _logger.Log(Severity.Info, $"Querying the index of last {imageType} image.");
+                var imageInfos = await _repository.GetImageInfosAsync(_client, movieIdentifier.Id);
+
+                return imageInfos
+                    .Where(x => x.ImageType == imageType)
+                    .Select(x => x.ImageIndex ?? 0)
+                    .Max();
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, $"Failed to query the index of last {imageType} image:");
+                return null;
+            }
+        }
+
+        public async Task<bool> ReindexImageOfMovieAsync(ImageType imageType,
+                                                         int currentIndex,
+                                                         int newIndex,
+                                                         IMovieIdentifier movieIdentifier)
+        {
+            try
+            {
+                _logger.Log(Severity.Info, $"Reindexing {imageType} image from index {currentIndex} to index {newIndex}.");
+                await _repository.ReindexImageOfMovieAsync(_client, imageType, currentIndex, newIndex, movieIdentifier.Id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, $"Failed to reindex {imageType} image:");
                 return false;
             }
         }
@@ -147,34 +193,5 @@ namespace P2E.Services.Emby
                 ex = ex.InnerException;
             }
         }
-
-
-        //public async Task<IMovieUpdateResult> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, IMovieIdentifier movieIdentifier)
-        //{
-
-
-
-        //    //await Task.Delay(1000);
-        //    _logger.Info($"Processing {plexMovieMetadata.Title}");
-        //    return new MovieUpdateResult
-        //    {
-        //        Filename = movieIdentifier.Filename,
-        //        Title = plexMovieMetadata.Title,
-        //        IsUpdated = false
-        //    };
-        //}
-
-        //public async Task<bool> UpdateItemAsync(IPlexMovieMetadata plexMovieMetadata, string embyLibraryName)
-        //{
-        //    //var movieIds = await _repository.GetMovieIdsAsync(_client, embyLibraryName);
-
-
-
-
-        //    await Task.Delay(1000);
-        //    _logger.Info($"Processing {plexMovieMetadata.Title}");
-        //    return true;
-
-        //}
     }
 }

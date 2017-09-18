@@ -1,9 +1,12 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Emby.ApiInteraction;
 using Emby.ApiInteraction.Cryptography;
 using Emby.ApiInteraction.Net;
 using MediaBrowser.Model.ApiClient;
+using MediaBrowser.Model.Entities;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Logging;
@@ -13,6 +16,8 @@ namespace P2E.DataObjects.Emby
 {
     public class EmbyClient : ApiClient, IEmbyClient
     {
+        private static readonly SemaphoreSlim SemSlim = new SemaphoreSlim(1, 1);
+
         private IUserCredentials _userCredentials;
         private readonly IConnectionInformation _connectionInformation;
 
@@ -20,8 +25,7 @@ namespace P2E.DataObjects.Emby
 
         public EmbyClient(IAppLogger logger, IDevice device, ICryptographyProvider cryptographyProvider,
             IConnectionInformation connectionInformation, IApplicationInformation applicationInformation)
-            : base(
-                logger, connectionInformation.ServerUrl, applicationInformation.Name, device,
+            : base(logger, connectionInformation.ServerUrl, applicationInformation.Name, device,
                 applicationInformation.Version, cryptographyProvider)
         {
             _connectionInformation = connectionInformation;
@@ -30,6 +34,47 @@ namespace P2E.DataObjects.Emby
         public void SetLoginData(IUserCredentialsService userCredentialsService)
         {
             _userCredentials = userCredentialsService?.PromptForUserCredentials(_connectionInformation, ServerType);
+        }
+
+        /// <remarks>
+        /// There seems to be some issue somewhere, which prevents a image from being reindexed.
+        /// I'd say it is an issue on the server side, though I cannot prove it - it happens sometimes (often).
+        /// The TCP and HTTP streams look fine, even if reindexing didn't work.
+        /// Reindexing never failed when all requests are sent in sequence. See EmbyRepository.ReindexImageOfMovieAsync().
+        /// Addendum: It does fail too.
+        /// </remarks>
+        public async Task<T> SendAsync<T>(string url,
+                                  string requestMethod,
+                                  QueryStringDictionary args = null,
+                                  CancellationToken cancellationToken = default(CancellationToken)) where T : class
+        {
+            // Client can send only one request at any time.
+            await SemSlim.WaitAsync(cancellationToken);
+            try
+            {
+                url = AddDataFormat(url);
+                var requestContentType = "application/x-www-form-urlencoded";
+                var requestContent = args?.GetQueryString();
+
+                var httpRequest = new HttpRequest
+                {
+                    Url = url,
+                    CancellationToken = cancellationToken,
+                    RequestHeaders = HttpHeaders,
+                    Method = requestMethod,
+                    RequestContentType = requestContentType,
+                    RequestContent = requestContent
+                };
+
+                using (var stream = await HttpClient.SendAsync(httpRequest).ConfigureAwait(false))
+                {
+                    return DeserializeFromStream<T>(stream);
+                }
+            }
+            finally
+            {
+                SemSlim.Release();
+            }
         }
 
         public async Task LoginAsync()
@@ -47,28 +92,6 @@ namespace P2E.DataObjects.Emby
             else
             {
                 await Task.Run(() => { });
-            }
-        }
-
-        /// <remarks>
-        /// This is a copy of the Emby.ApiInteraction.ApiClient.DeleteAsync() method, since the original is private, for whatever reasons.
-        /// The also private method SendAsync is replaced with IAsyncHttpClient.SendAsync which "seems" to work...
-        /// TODO - Once the ApiClient.DeleteAsync() method is public this method should be deleted.
-        /// </remarks>
-        public async Task<T> DeleteAsync<T>(string url, CancellationToken cancellationToken = default(CancellationToken)) where T : class
-        {
-            url = AddDataFormat(url);
-
-            using (var stream = await HttpClient.SendAsync(new HttpRequest
-            {
-                Url = url,
-                CancellationToken = cancellationToken,
-                RequestHeaders = HttpHeaders,
-                Method = "DELETE"
-
-            }).ConfigureAwait(false))
-            {
-                return DeserializeFromStream<T>(stream);
             }
         }
     }

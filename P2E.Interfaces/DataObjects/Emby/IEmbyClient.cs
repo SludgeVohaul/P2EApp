@@ -1,11 +1,15 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Emby.ApiInteraction;
 using MediaBrowser.Model.ApiClient;
 
 namespace P2E.Interfaces.DataObjects.Emby
 {
     public interface IEmbyClient : IApiClient, IClient
     {
-        Task<T> DeleteAsync<T>(string url, CancellationToken cancellationToken = default(CancellationToken)) where T : class;
+        Task<T> SendAsync<T>(string url,
+                             string requestMethod,
+                             QueryStringDictionary args = null,
+                             CancellationToken cancellationToken = default(CancellationToken)) where T : class;
     }
 }

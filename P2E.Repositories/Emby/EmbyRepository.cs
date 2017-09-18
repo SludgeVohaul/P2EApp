@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Emby.ApiInteraction;
 using MediaBrowser.Model.Collections;
+using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Querying;
 using P2E.ExtensionMethods;
 using P2E.Interfaces.DataObjects.Emby;
@@ -38,13 +40,12 @@ namespace P2E.Repositories.Emby
                 .ToArray();
         }
 
-        public async Task<IReadOnlyCollection<IMovieIdentifier>> GetMovieIdentifiersAsync(IEmbyClient client,
-                                                                                                ILibraryIdentifier libraryIdentifier)
+        public async Task<IReadOnlyCollection<IMovieIdentifier>> GetMovieIdentifiersAsync(IEmbyClient client, string libraryId)
         {
             var query = new ItemQuery
             {
                 UserId = client.CurrentUserId,
-                ParentId = libraryIdentifier.Id,
+                ParentId = libraryId,
                 Filters = new[] { ItemFilter.IsNotFolder },
                 IncludeItemTypes = new[] { "Movie" },
                 Fields = new[] { ItemFields.Path },
@@ -83,13 +84,12 @@ namespace P2E.Repositories.Emby
                 .ToArray();
         }
 
-
         /// <remarks>Please read
         /// https://emby.media/community/index.php?/topic/50514-apiclient-how-to-check-whether-an-arbitrary-string-matches-an-existing-boxset/
         /// </remarks>
         public async Task<ICollectionIdentifier> CreateCollectionAsync(IEmbyClient client, string pathBasename)
         {
-            var args = new Dictionary<string, string>
+            var args = new QueryStringDictionary
             {
                 {"IsLocked", "false"},
                 {"Name", pathBasename},
@@ -97,7 +97,7 @@ namespace P2E.Repositories.Emby
                 {"Ids", ""}
             };
             var url = client.GetApiUrl("Collections");
-            var collectionCreationResult = await client.PostAsync<CollectionCreationResult>(url, args);
+            var collectionCreationResult = await client.SendAsync<CollectionCreationResult>(url, "POST", args);
 
             return new CollectionIdentifier
             {
@@ -111,36 +111,59 @@ namespace P2E.Repositories.Emby
         /// for the POST URL.</remarks>
         public async Task AddMovieToCollectionAsync(IEmbyClient client, string movieId, string collectionId)
         {
-            var args = new Dictionary<string, string>
+            var args = new QueryStringDictionary
             {
-                // TODO - is the Id item necessary?
-                {"Id", collectionId},
                 {"Ids", movieId}
             };
             var url = client.GetApiUrl($"Collections/{collectionId}/Items");
-            await client.PostAsync<Task>(url, args);
+            await client.SendAsync<EmptyRequestResult>(url, "POST", args);
+
         }
 
-        public async Task AddImageToMovieAsync(IEmbyClient client, string movieId, ImageType imageType, Uri imageUrl)
+        public async Task AddImageToMovieAsync(IEmbyClient client, ImageType imageType, Uri imageUrl, string movieId)
         {
-            var args = new Dictionary<string, string>
+            var args = new QueryStringDictionary
             {
-                // TODO - is the Id item necessary?
-                {"Id", movieId},
                 {"Type", imageType.ToString()},
-                {"ImageUrl", imageUrl.AbsoluteUri},
+                {"ImageUrl", imageUrl.AbsoluteUri}
             };
 
             var url = client.GetApiUrl($"Items/{movieId}/RemoteImages/Download");
-            await client.PostAsync<EmptyRequestResult>(url, args);
+            await client.SendAsync<EmptyRequestResult>(url, "POST", args);
         }
 
-        public async Task DeleteImagesFromMovieAsync(IEmbyClient client, string movieId, ImageType imageType)
+
+        /// <remarks>
+        /// There seems to be some issue somewhere, which prevents a image from being reindexed.
+        /// I'd say it is an issue on the server side, though I cannot prove it - it happens sometimes (often).
+        /// The TCP and HTTP streams look fine, even if reindexing didn't work.
+        /// Reindexing never failed when all requests are sent in sequence. See EmbyClient.SendAsync().
+        /// </remarks>
+        public async Task ReindexImageOfMovieAsync(IEmbyClient client, ImageType imageType, int index, int newIndex, string movieId)
+        {
+            var args = new QueryStringDictionary
+            {
+                { "newIndex", newIndex.ToString()}
+            };
+
+            var url = client.GetApiUrl($"Items/{movieId}/Images/{imageType}/{index}/Index");
+            await client.SendAsync<EmptyRequestResult>(url, "POST", args);
+        }
+
+        public async Task<IReadOnlyCollection<ImageInfo>> GetImageInfosAsync(IEmbyClient client, string movieId)
+        {
+            var url = client.GetApiUrl($"Items/{movieId}/Images");
+            return await client.SendAsync<List<ImageInfo>>(url, "GET");
+        }
+
+
+
+        public async Task DeleteImageFromMovieAsync(IEmbyClient client, ImageType imageType, int index, string movieId)
         {
             // TODO - This does not delete all images of the provided type.
             // TODO - With default index, only the image at index=0 (the leftmost in browser UI) is deleted.
-            var url = client.GetApiUrl($"Items/{movieId}/Images/{imageType}");
-            await client.DeleteAsync<EmptyRequestResult>(url);
+            var url = client.GetApiUrl($"Items/{movieId}/Images/{imageType}/{index}");
+            await client.SendAsync<EmptyRequestResult>(url, "DELETE");
         }
 
 

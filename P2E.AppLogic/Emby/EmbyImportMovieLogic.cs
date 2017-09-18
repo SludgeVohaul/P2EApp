@@ -35,56 +35,53 @@ namespace P2E.AppLogic.Emby
             _client = client;
         }
 
-        public async Task<bool> RunAsync(IPlexMovieMetadata plexMovieMetaDataItem, IMovieIdentifier embyMovieIdentifier)
+        public async Task<bool> RunAsync(IPlexMovieMetadata plexMovieMetadata, IMovieIdentifier embyMovieIdentifier)
         {
+            var retval = true;
+
             await SemSlim.WaitAsync();
             try
             {
                 var embyService = _serviceFactory.CreateService<IEmbyService, IEmbyClient>(_client);
 
-                _logger.Log(Severity.Info, $"Processing '{plexMovieMetaDataItem.Title}'");
+                _logger.Log(Severity.Info, $"Processing '{plexMovieMetadata.Title}'");
 
                 // Get (and create if necessary) all collections the movie belongs to.
-                var collectionIdentifiers = await GetCollectionsForMovieAsync(embyService, plexMovieMetaDataItem.Collections);
+                var collectionIdentifiers = await GetCollectionsForMovieAsync(embyService, plexMovieMetadata.Collections);
                 if (collectionIdentifiers == null)
                 {
-                    var msg = $"Failed to update Emby collections for '{plexMovieMetaDataItem.Title}'. Import aborted.";
-                    _logger.Log(Severity.Error, msg);
-                    return false;
+                    var msg = $"Failed to update Emby collections for '{plexMovieMetadata.Title}'. Movie will not be added into any collection.";
+                    _logger.Log(Severity.Warn, msg);
+                    retval = false;
+                }
+
+                //// Delete all existing images of a type from movie.
+                //if (await embyService.TryDeleteImageFromMovieAsync(ImageType.Primary, embyMovieIdentifier) == false
+                //    | await embyService.TryDeleteImageFromMovieAsync(ImageType.Backdrop, embyMovieIdentifier) == false)
+                //{
+                //    var msg1 = $"Failed to delete images from  '{plexMovieMetadata.Title}'.";
+                //    var msg2 = "Added images will not be displayed.";
+                //    _logger.Log(Severity.Warn, $"{msg1}{Environment.NewLine}{msg2}");
+                //}
+
+                // Add images to movie.
+                if (await AddImagesToMovie(embyService, plexMovieMetadata, embyMovieIdentifier) == false)
+                {
+                    _logger.Log(Severity.Warn, $"One or more images could not be properly added to '{plexMovieMetadata.Title}'.");
+                    retval = false;
                 }
 
                 // Add the movie to all collections.
-                if ((await Task.WhenAll(collectionIdentifiers.Select(x => embyService.TryAddMovieToCollectionAsync(embyMovieIdentifier, x)))).Any(x => x == false))
+                if (collectionIdentifiers != null)
                 {
-                    var msg = $"Failed to add '{plexMovieMetaDataItem.Title}' to provided collections. Import aborted.";
-                    _logger.Log(Severity.Error, msg);
-                    return false;
+                    if (await AddMovieToCollections(embyService, collectionIdentifiers, embyMovieIdentifier) == false)
+                    {
+                        _logger.Log(Severity.Warn, $"Failed to add '{plexMovieMetadata.Title}' to one or more collections.");
+                        retval = false;
+                    }
                 }
 
-                // Delete all existing images of a type from movie.
-                if (await embyService.TryDeleteImagesFromMovieAsync(embyMovieIdentifier, ImageType.Primary) == false
-                    | await embyService.TryDeleteImagesFromMovieAsync(embyMovieIdentifier, ImageType.Backdrop) == false)
-                {
-                    var msg1 = $"Failed to delete images from  '{plexMovieMetaDataItem.Title}'.";
-                    var msg2 = "Added images will not be displayed.";
-                    _logger.Log(Severity.Warn, $"{msg1}{Environment.NewLine}{msg2}");
-                }
-
-                // Add images to movie.
-                if (await embyService.TryAddImageToMovieAsync(embyMovieIdentifier, ImageType.Primary, plexMovieMetaDataItem.ThumbUri) == false
-                    | await embyService.TryAddImageToMovieAsync(embyMovieIdentifier, ImageType.Backdrop, plexMovieMetaDataItem.ArtUri) == false)
-                {
-                    var msg = $"Failed to add images to '{plexMovieMetaDataItem.Title}'.";
-                    _logger.Log(Severity.Warn, msg);
-                }
-
-
-
-
-                //var failedMovieTitles = updateResults.Where(x => x.IsUpdated == false).Select(x => x.Title).ToArray();
-                //await LogItemsAsync(Severity.Warn, "Update failed for the following titles", failedMovieTitles);
-
-                return false;
+                return retval;
             }
             finally
             {
@@ -116,6 +113,57 @@ namespace P2E.AppLogic.Emby
 
             existingMovieCollections.AddRange(createdCollections);
             return existingMovieCollections;
+        }
+
+        private async Task<bool> AddImagesToMovie(IEmbyService service, IPlexMovieMetadata plexMovieMetadata, IMovieIdentifier embyMovieIdentifier)
+        {
+            // TODO - change this C# 7 tuple features in VS2017
+            var plexEmbyImagePairs = new []
+            {
+                new Tuple<Uri, ImageType>(plexMovieMetadata.ThumbUri, ImageType.Primary),
+                new Tuple<Uri, ImageType>(plexMovieMetadata.ArtUri, ImageType.Backdrop)
+            };
+
+            var retval = true;
+
+            foreach (var plexEmbyImagePair in plexEmbyImagePairs)
+            {
+                // Add image.
+                if (await service.TryAddImageToMovieAsync(plexEmbyImagePair.Item2, plexEmbyImagePair.Item1, embyMovieIdentifier) == false)
+                {
+                    _logger.Log(Severity.Warn, $"{plexEmbyImagePair.Item2} image at {plexEmbyImagePair.Item1} was not imported.");
+                    retval = false;
+                    continue;
+                }
+
+                // Get the index of the last image (of the just added type).
+                var maxImageIndex = await service.GetMaxImageIndex(plexEmbyImagePair.Item2, embyMovieIdentifier);
+                if (maxImageIndex == null)
+                {
+                    _logger.Log(Severity.Warn, $"The added {plexEmbyImagePair.Item2} image might not be diplayed.");
+                    retval = false;
+                    continue;
+                }
+
+                // Do not reindex if there is only one (or none) image.
+                if (maxImageIndex.Value < 1) continue;
+
+                if (await service.ReindexImageOfMovieAsync(plexEmbyImagePair.Item2, maxImageIndex.Value, 0, embyMovieIdentifier) == false)
+                {
+                    _logger.Log(Severity.Warn, $"The added {plexEmbyImagePair.Item2} will not be diplayed.");
+                    retval = false;
+                }
+            }
+
+            return retval;
+        }
+
+        private async Task<bool> AddMovieToCollections(IEmbyService service,
+                                                       IReadOnlyCollection<ICollectionIdentifier> collectionIdentifiers,
+                                                       IMovieIdentifier embyMovieIdentifier)
+        {
+            var addMovieToCollectionsResults = await Task.WhenAll(collectionIdentifiers.Select(x => service.TryAddMovieToCollectionAsync(embyMovieIdentifier, x)));
+            return addMovieToCollectionsResults.All(x => x);
         }
 
         private void OnItemProcessed()
