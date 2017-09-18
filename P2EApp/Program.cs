@@ -14,17 +14,20 @@ namespace P2EApp
         {
             try
             {
-                var kernel = new StandardKernel();
-                Bootstrapper.ConfigureContainer(kernel);
-
-                var options = kernel.Get<IConsoleOptions>();
-                if (Parser.Default.ParseArguments(args, options) == false)
+                // FYI: Disposable objects bound in InSingletonScope are disposed when the kernel is disposed.
+                using (var kernel = new StandardKernel())
                 {
-                    Console.WriteLine(options.GetUsage());
-                    return;
-                }
+                    Bootstrapper.ConfigureContainer(kernel);
 
-                kernel.Get<IMainLogic>().RunAsync().Wait();
+                    var options = kernel.Get<IConsoleOptions>();
+                    if (Parser.Default.ParseArguments(args, options) == false)
+                    {
+                        Console.WriteLine(options.GetUsage());
+                        return;
+                    }
+
+                    kernel.Get<IMainLogic>().RunAsync().Wait();
+                }
             }
             catch (AggregateException ae)
             {
