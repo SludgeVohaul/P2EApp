@@ -91,7 +91,10 @@ namespace P2E.Logging
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = _consoleForegroundColor;
+                lock (ConsoleLockObject)
+                {
+                    Console.ForegroundColor = _consoleForegroundColor;
+                }
                 Console.WriteLine($"Logging failed: {ex.Message}");
             }
         }
@@ -116,7 +119,10 @@ namespace P2E.Logging
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = _consoleForegroundColor;
+                lock (ConsoleLockObject)
+                {
+                    Console.ForegroundColor = _consoleForegroundColor;
+                }
                 Console.WriteLine($"Logging failed: {ex.Message}");
             }
         }
