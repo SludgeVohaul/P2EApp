@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Emby.ApiInteraction;
-using MediaBrowser.Model.ApiClient;
+using Emby.ApiClient;
+using Emby.ApiClient.Model;
 
 namespace P2E.Interfaces.DataObjects.Emby
 {

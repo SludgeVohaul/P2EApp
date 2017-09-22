@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaBrowser.Model.ApiClient;
+using Emby.ApiClient.Model;
 using MediaBrowser.Model.Devices;
 
 namespace P2E.DataObjects.Emby

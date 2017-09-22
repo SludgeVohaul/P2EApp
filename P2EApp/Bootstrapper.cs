@@ -1,5 +1,5 @@
-﻿using Emby.ApiInteraction.Cryptography;
-using MediaBrowser.Model.ApiClient;
+﻿using Emby.ApiClient.Cryptography;
+using Emby.ApiClient.Model;
 using Ninject;
 using Ninject.Extensions.Factory;
 using P2E.AppLogic;

@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Emby.ApiInteraction;
-using Emby.ApiInteraction.Cryptography;
-using Emby.ApiInteraction.Net;
-using MediaBrowser.Model.ApiClient;
-using MediaBrowser.Model.Entities;
+using Emby.ApiClient;
+using Emby.ApiClient.Cryptography;
+using Emby.ApiClient.Model;
+using Emby.ApiClient.Net;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Logging;
