@@ -79,8 +79,13 @@ namespace P2E.Services.Emby
                 Logger.Log(Severity.Info, $"Querying the index of last {imageType} image.");
                 var imageInfos = await Repository.GetImageInfosAsync(Client, movieIdentifier.Id);
 
-                return imageInfos
+                var imageInfosOfType = imageInfos
                     .Where(x => x.ImageType == imageType)
+                    .ToArray();
+
+                if (imageInfosOfType.Any() == false) return -1;
+
+                return imageInfosOfType
                     .Select(x => x.ImageIndex ?? 0)
                     .Max();
             }
