@@ -33,13 +33,6 @@ namespace P2E.DataObjects.Emby
             _userCredentials = userCredentialsService?.PromptForUserCredentials(_connectionInformation, ServerType);
         }
 
-        /// <remarks>
-        /// There seems to be some issue somewhere, which prevents a image from being reindexed.
-        /// I'd say it is an issue on the server side, though I cannot prove it - it happens sometimes (often).
-        /// The TCP and HTTP streams look fine, even if reindexing didn't work.
-        /// Reindexing never failed when all requests are sent in sequence. See EmbyRepository.ReindexImageOfMovieAsync().
-        /// Addendum: It does fail too.
-        /// </remarks>
         public async Task<T> SendAsync<T>(string url,
                                   string requestMethod,
                                   QueryStringDictionary args = null,
@@ -50,7 +43,6 @@ namespace P2E.DataObjects.Emby
             try
             {
                 url = AddDataFormat(url);
-                var requestContentType = "application/x-www-form-urlencoded";
                 var requestContent = args?.GetQueryString();
 
                 var httpRequest = new HttpRequest
@@ -59,7 +51,7 @@ namespace P2E.DataObjects.Emby
                     CancellationToken = cancellationToken,
                     RequestHeaders = HttpHeaders,
                     Method = requestMethod,
-                    RequestContentType = requestContentType,
+                    RequestContentType = "application/x-www-form-urlencoded",
                     RequestContent = requestContent
                 };
 

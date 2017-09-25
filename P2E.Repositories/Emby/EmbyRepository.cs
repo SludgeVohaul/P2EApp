@@ -136,9 +136,8 @@ namespace P2E.Repositories.Emby
 
         /// <remarks>
         /// There seems to be some issue somewhere, which prevents a image from being reindexed.
-        /// I'd say it is an issue on the server side, though I cannot prove it - it happens sometimes (often).
-        /// The TCP and HTTP streams look fine, even if reindexing didn't work.
-        /// Reindexing never failed when all requests are sent in sequence. See EmbyClient.SendAsync().
+        /// See
+        /// https://emby.media/community/index.php?/topic/50794-apiclient-server-3230-cannot-reindex-the-backdrop-image-of-a-movie/
         /// </remarks>
         public async Task ReindexImageOfMovieAsync(IEmbyClient client, ImageType imageType, int index, int newIndex, string movieId)
         {
@@ -157,12 +156,8 @@ namespace P2E.Repositories.Emby
             return await client.SendAsync<List<ImageInfo>>(url, "GET");
         }
 
-
-
         public async Task DeleteImageFromMovieAsync(IEmbyClient client, ImageType imageType, int index, string movieId)
         {
-            // TODO - This does not delete all images of the provided type.
-            // TODO - With default index, only the image at index=0 (the leftmost in browser UI) is deleted.
             var url = client.GetApiUrl($"Items/{movieId}/Images/{imageType}/{index}");
             await client.SendAsync<EmptyRequestResult>(url, "DELETE");
         }

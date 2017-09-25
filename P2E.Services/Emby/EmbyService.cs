@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Model.Entities;
 using P2E.Interfaces.DataObjects.Emby;
@@ -13,6 +14,8 @@ namespace P2E.Services.Emby
 {
     public class EmbyService : IEmbyService
     {
+        private static readonly SemaphoreSlim SemSlim = new SemaphoreSlim(1, 1);
+
         private readonly IEmbyClient _client;
         private readonly IAppLogger _logger;
         private readonly IEmbyRepository _repository;
@@ -26,6 +29,7 @@ namespace P2E.Services.Emby
 
         public async Task<ILibraryIdentifier> GetLibraryIdentifierAsync(string libraryName)
         {
+            await SemSlim.WaitAsync();
             try
             {
                 var libraryIdentifiers = await _repository.GetLibraryIdentifiersAsync(_client);
@@ -36,11 +40,16 @@ namespace P2E.Services.Emby
                 LogException(ex, "Failed to get library identifier:");
                 return null;
             }
+            finally
+            {
+                SemSlim.Release();
+            }
         }
 
         public async Task<IReadOnlyCollection<IMovieIdentifier>> GetMovieIdentifiersAsync(
             ILibraryIdentifier libraryIdentifier)
         {
+            await SemSlim.WaitAsync();
             try
             {
                 return await _repository.GetMovieIdentifiersAsync(_client, libraryIdentifier.Id);
@@ -50,10 +59,15 @@ namespace P2E.Services.Emby
                 LogException(ex, "Failed to get movie identifiers:");
                 return null;
             }
+            finally
+            {
+                SemSlim.Release();
+            }
         }
 
         public async Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionIdentifiersAsync()
         {
+            await SemSlim.WaitAsync();
             try
             {
                 return (await _repository.GetCollectionIdentifiersAsync(_client)).ToArray();
@@ -63,10 +77,15 @@ namespace P2E.Services.Emby
                 LogException(ex, "Failed to get collection identifiers:");
                 return null;
             }
+            finally
+            {
+                SemSlim.Release();
+            }
         }
 
         public async Task<ICollectionIdentifier> CreateCollectionAsync(string collectionName)
         {
+            await SemSlim.WaitAsync();
             try
             {
                 _logger.Log(Severity.Info, $"Creating new collection '{collectionName}'.");
@@ -81,11 +100,16 @@ namespace P2E.Services.Emby
                 LogException(ex, $"Failed to create collection '{collectionName}':");
                 return null;
             }
+            finally
+            {
+                SemSlim.Release();
+            }
         }
 
         public async Task<bool> TryAddMovieToCollectionAsync(IMovieIdentifier movieIdentifier,
                                                              ICollectionIdentifier collectionIdentifier)
         {
+            await SemSlim.WaitAsync();
             try
             {
                 _logger.Log(Severity.Info, $"Adding movie to collection '{collectionIdentifier.PathBasename}'.");
@@ -97,19 +121,17 @@ namespace P2E.Services.Emby
                 LogException(ex, $"Failed to add movie to collection '{collectionIdentifier.PathBasename}':");
                 return false;
             }
+            finally
+            {
+                SemSlim.Release();
+            }
         }
 
-        /// <remarks>
-        /// There is no way to tell the server to display the added image. One has to
-        /// assume that the added image is the one with the highest index. See
-        /// https://emby.media/community/index.php?/topic/50676-how-to-re-index-a-new-remoteimage-of-an-item/
-        /// Therefore adding, finding and re-indexing is all done in this method as tearing it apart
-        /// would increase chances that the last image is not the just added one anymore.
-        /// </remarks>
         public async Task<bool> TryAddImageToMovieAsync(ImageType imageType,
                                                         Uri imageUrl,
                                                         IMovieIdentifier movieIdentifier)
         {
+            await SemSlim.WaitAsync();
             if (imageUrl == null)
             {
                 _logger.Log(Severity.Warn, $"No {imageType} image available.");
@@ -127,15 +149,20 @@ namespace P2E.Services.Emby
                 LogException(ex, $"Failed to add {imageType} image:");
                 return false;
             }
+            finally
+            {
+                SemSlim.Release();
+            }
         }
 
         public async Task<bool> TryDeleteImageFromMovieAsync(ImageType imageType,
                                                              int imageIndex,
                                                              IMovieIdentifier movieIdentifier)
         {
+            await SemSlim.WaitAsync();
             try
             {
-                _logger.Log(Severity.Info, $"Deleting {imageType} image.");
+                _logger.Log(Severity.Info, $"Deleting {imageType} image at index {imageIndex}.");
                 await _repository.DeleteImageFromMovieAsync(_client, imageType, imageIndex, movieIdentifier.Id);
                 return true;
             }
@@ -144,10 +171,15 @@ namespace P2E.Services.Emby
                 LogException(ex, $"Failed to delete {imageType} image at index {imageIndex}:");
                 return false;
             }
+            finally
+            {
+                SemSlim.Release();
+            }
         }
 
         public async Task<int?> GetMaxImageIndex(ImageType imageType, IMovieIdentifier movieIdentifier)
         {
+            await SemSlim.WaitAsync();
             try
             {
                 _logger.Log(Severity.Info, $"Querying the index of last {imageType} image.");
@@ -163,13 +195,25 @@ namespace P2E.Services.Emby
                 LogException(ex, $"Failed to query the index of last {imageType} image:");
                 return null;
             }
+            finally
+            {
+                SemSlim.Release();
+            }
         }
 
+        /// <remarks>
+        /// There is no way to tell the server to display the added image. One has to
+        /// assume that the added image is the one with the highest index. See
+        /// https://emby.media/community/index.php?/topic/50676-how-to-re-index-a-new-remoteimage-of-an-item/
+        /// But unfortunatellyreindexing does not work reliably, see
+        /// https://emby.media/community/index.php?/topic/50794-apiclient-server-3230-cannot-reindex-the-backdrop-image-of-a-movie/
+        /// </remarks>
         public async Task<bool> ReindexImageOfMovieAsync(ImageType imageType,
                                                          int currentIndex,
                                                          int newIndex,
                                                          IMovieIdentifier movieIdentifier)
         {
+            await SemSlim.WaitAsync();
             try
             {
                 _logger.Log(Severity.Info, $"Reindexing {imageType} image from index {currentIndex} to index {newIndex}.");
@@ -180,6 +224,10 @@ namespace P2E.Services.Emby
             {
                 LogException(ex, $"Failed to reindex {imageType} image:");
                 return false;
+            }
+            finally
+            {
+                SemSlim.Release();
             }
         }
 
