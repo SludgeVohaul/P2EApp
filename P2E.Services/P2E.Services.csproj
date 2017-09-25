@@ -54,6 +54,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Emby\EmbyBaseService.cs" />
+    <Compile Include="Emby\EmbyImageService.cs" />
     <Compile Include="Emby\EmbyService.cs" />
     <Compile Include="Plex\PlexService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

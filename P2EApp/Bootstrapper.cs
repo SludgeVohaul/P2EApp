@@ -77,6 +77,7 @@ namespace P2EApp
 
             kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();
             kernel.Bind<IEmbyService>().To<EmbyService>();
+            kernel.Bind<IEmbyImageService>().To<EmbyImageService>();
             kernel.Bind<IPlexService>().To<PlexService>();
             kernel.Bind<ISpinWheelService>().To<SpinWheelService>();
 

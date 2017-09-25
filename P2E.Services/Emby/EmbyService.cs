@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaBrowser.Model.Entities;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.DataObjects.Emby.Library;
 using P2E.Interfaces.Logging;
@@ -12,19 +11,13 @@ using P2E.Interfaces.Repositories.Emby;
 
 namespace P2E.Services.Emby
 {
-    public class EmbyService : IEmbyService
+    public class EmbyService : EmbyBaseService, IEmbyService
     {
         private static readonly SemaphoreSlim SemSlim = new SemaphoreSlim(1, 1);
 
-        private readonly IEmbyClient _client;
-        private readonly IAppLogger _logger;
-        private readonly IEmbyRepository _repository;
-
         public EmbyService(IAppLogger logger, IEmbyClient client, IEmbyRepository embyRepository)
+            : base(logger, client, embyRepository)
         {
-            _client = client;
-            _logger = logger;
-            _repository = embyRepository;
         }
 
         public async Task<ILibraryIdentifier> GetLibraryIdentifierAsync(string libraryName)
@@ -32,7 +25,7 @@ namespace P2E.Services.Emby
             await SemSlim.WaitAsync();
             try
             {
-                var libraryIdentifiers = await _repository.GetLibraryIdentifiersAsync(_client);
+                var libraryIdentifiers = await Repository.GetLibraryIdentifiersAsync(Client);
                 return libraryIdentifiers.FirstOrDefault(x => x.Name == libraryName);
             }
             catch (Exception ex)
@@ -52,7 +45,7 @@ namespace P2E.Services.Emby
             await SemSlim.WaitAsync();
             try
             {
-                return await _repository.GetMovieIdentifiersAsync(_client, libraryIdentifier.Id);
+                return await Repository.GetMovieIdentifiersAsync(Client, libraryIdentifier.Id);
             }
             catch (Exception ex)
             {
@@ -70,7 +63,7 @@ namespace P2E.Services.Emby
             await SemSlim.WaitAsync();
             try
             {
-                return (await _repository.GetCollectionIdentifiersAsync(_client)).ToArray();
+                return (await Repository.GetCollectionIdentifiersAsync(Client)).ToArray();
             }
             catch (Exception ex)
             {
@@ -88,9 +81,9 @@ namespace P2E.Services.Emby
             await SemSlim.WaitAsync();
             try
             {
-                _logger.Log(Severity.Info, $"Creating new collection '{collectionName}'.");
-                var collectionIdentifier = await _repository.CreateCollectionAsync(_client, collectionName);
-                _logger.Log(Severity.Debug,
+                Logger.Log(Severity.Info, $"Creating new collection '{collectionName}'.");
+                var collectionIdentifier = await Repository.CreateCollectionAsync(Client, collectionName);
+                Logger.Log(Severity.Debug,
                     $"New collection ID: {collectionIdentifier.Id} Pathname: {collectionIdentifier.PathBasename}");
 
                 return collectionIdentifier;
@@ -112,8 +105,8 @@ namespace P2E.Services.Emby
             await SemSlim.WaitAsync();
             try
             {
-                _logger.Log(Severity.Info, $"Adding movie to collection '{collectionIdentifier.PathBasename}'.");
-                await _repository.AddMovieToCollectionAsync(_client, movieIdentifier.Id, collectionIdentifier.Id);
+                Logger.Log(Severity.Info, $"Adding movie to collection '{collectionIdentifier.PathBasename}'.");
+                await Repository.AddMovieToCollectionAsync(Client, movieIdentifier.Id, collectionIdentifier.Id);
                 return true;
             }
             catch (Exception ex)
@@ -124,121 +117,6 @@ namespace P2E.Services.Emby
             finally
             {
                 SemSlim.Release();
-            }
-        }
-
-        public async Task<bool> TryAddImageToMovieAsync(ImageType imageType,
-                                                        Uri imageUrl,
-                                                        IMovieIdentifier movieIdentifier)
-        {
-            await SemSlim.WaitAsync();
-            if (imageUrl == null)
-            {
-                _logger.Log(Severity.Warn, $"No {imageType} image available.");
-                return true;
-            }
-
-            try
-            {
-                _logger.Log(Severity.Info, $"Adding {imageType} image.");
-                await _repository.AddImageToMovieAsync(_client, imageType, imageUrl, movieIdentifier.Id);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                LogException(ex, $"Failed to add {imageType} image:");
-                return false;
-            }
-            finally
-            {
-                SemSlim.Release();
-            }
-        }
-
-        public async Task<bool> TryDeleteImageFromMovieAsync(ImageType imageType,
-                                                             int imageIndex,
-                                                             IMovieIdentifier movieIdentifier)
-        {
-            await SemSlim.WaitAsync();
-            try
-            {
-                _logger.Log(Severity.Info, $"Deleting {imageType} image at index {imageIndex}.");
-                await _repository.DeleteImageFromMovieAsync(_client, imageType, imageIndex, movieIdentifier.Id);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                LogException(ex, $"Failed to delete {imageType} image at index {imageIndex}:");
-                return false;
-            }
-            finally
-            {
-                SemSlim.Release();
-            }
-        }
-
-        public async Task<int?> GetMaxImageIndex(ImageType imageType, IMovieIdentifier movieIdentifier)
-        {
-            await SemSlim.WaitAsync();
-            try
-            {
-                _logger.Log(Severity.Info, $"Querying the index of last {imageType} image.");
-                var imageInfos = await _repository.GetImageInfosAsync(_client, movieIdentifier.Id);
-
-                return imageInfos
-                    .Where(x => x.ImageType == imageType)
-                    .Select(x => x.ImageIndex ?? 0)
-                    .Max();
-            }
-            catch (Exception ex)
-            {
-                LogException(ex, $"Failed to query the index of last {imageType} image:");
-                return null;
-            }
-            finally
-            {
-                SemSlim.Release();
-            }
-        }
-
-        /// <remarks>
-        /// There is no way to tell the server to display the added image. One has to
-        /// assume that the added image is the one with the highest index. See
-        /// https://emby.media/community/index.php?/topic/50676-how-to-re-index-a-new-remoteimage-of-an-item/
-        /// But unfortunatellyreindexing does not work reliably, see
-        /// https://emby.media/community/index.php?/topic/50794-apiclient-server-3230-cannot-reindex-the-backdrop-image-of-a-movie/
-        /// </remarks>
-        public async Task<bool> ReindexImageOfMovieAsync(ImageType imageType,
-                                                         int currentIndex,
-                                                         int newIndex,
-                                                         IMovieIdentifier movieIdentifier)
-        {
-            await SemSlim.WaitAsync();
-            try
-            {
-                _logger.Log(Severity.Info, $"Reindexing {imageType} image from index {currentIndex} to index {newIndex}.");
-                await _repository.ReindexImageOfMovieAsync(_client, imageType, currentIndex, newIndex, movieIdentifier.Id);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                LogException(ex, $"Failed to reindex {imageType} image:");
-                return false;
-            }
-            finally
-            {
-                SemSlim.Release();
-            }
-        }
-
-        private void LogException(Exception ex, string message)
-        {
-            _logger.Log(Severity.Error, message);
-            _logger.Log(Severity.ErrorException, ex.Message);
-            while (ex.InnerException != null)
-            {
-                _logger.Log(Severity.ErrorException, ex.InnerException.Message);
-                ex = ex.InnerException;
             }
         }
     }

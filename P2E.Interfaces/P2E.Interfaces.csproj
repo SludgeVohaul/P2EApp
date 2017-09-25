@@ -93,6 +93,7 @@
     <Compile Include="Repositories\Emby\IEmbyRepository.cs" />
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Repositories\Plex\IPlexRepository.cs" />
+    <Compile Include="Services\Emby\IEmbyImageService.cs" />
     <Compile Include="Services\Emby\IEmbyService.cs" />
     <Compile Include="Services\IService.cs" />
     <Compile Include="Services\Plex\Exceptions\ResponseFailureException.cs" />
