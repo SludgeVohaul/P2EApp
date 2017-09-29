@@ -52,11 +52,13 @@ namespace P2E.AppLogic.Emby
                     _logger.Log(Severity.Warn, msg);
                     retval = false;
                 }
-
-                // Add the movie to all collections.
-                if (collectionIdentifiers != null)
+                else
                 {
-                    if (await AddMovieToCollections(embyService, collectionIdentifiers, embyMovieIdentifier) == false)
+                    // Add the movie to all collections.
+                    var addMovieToCollectionsTasks = collectionIdentifiers
+                        .Select(x => embyService.TryAddMovieToCollectionAsync(embyMovieIdentifier, x));
+                    var addMovieToCollectionsResults = await Task.WhenAll(addMovieToCollectionsTasks);
+                    if (addMovieToCollectionsResults.Any(x => x == false))
                     {
                         _logger.Log(Severity.Warn, $"Failed to add '{plexMovieMetadata.Title}' to one or more collections.");
                         retval = false;
@@ -103,14 +105,6 @@ namespace P2E.AppLogic.Emby
 
             existingMovieCollections.AddRange(createdCollections);
             return existingMovieCollections;
-        }
-
-        private async Task<bool> AddMovieToCollections(IEmbyService service,
-                                                       IReadOnlyCollection<ICollectionIdentifier> collectionIdentifiers,
-                                                       IMovieIdentifier embyMovieIdentifier)
-        {
-            var addMovieToCollectionsResults = await Task.WhenAll(collectionIdentifiers.Select(x => service.TryAddMovieToCollectionAsync(embyMovieIdentifier, x)));
-            return addMovieToCollectionsResults.All(x => x);
         }
 
         private void OnItemProcessed()
