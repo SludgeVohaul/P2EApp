@@ -104,7 +104,7 @@ namespace P2E.Services.Emby
         /// There is no way to tell the server to display the added image. One has to
         /// assume that the added image is the one with the highest index. See
         /// https://emby.media/community/index.php?/topic/50676-how-to-re-index-a-new-remoteimage-of-an-item/
-        /// But unfortunatellyreindexing does not work reliably, see
+        /// Unfortunatelly reindexing does not work reliably, see
         /// https://emby.media/community/index.php?/topic/50794-apiclient-server-3230-cannot-reindex-the-backdrop-image-of-a-movie/
         /// </remarks>
         public async Task<bool> ReindexImageOfMovieAsync(ImageType imageType,

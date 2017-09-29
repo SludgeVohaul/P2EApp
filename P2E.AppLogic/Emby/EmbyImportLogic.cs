@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using P2E.Interfaces.AppLogic.Emby;
 using P2E.Interfaces.CommandLine;
-using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.DataObjects.Emby.Library;
 using P2E.Interfaces.DataObjects.Plex.Library;
 using P2E.Interfaces.Factories;
@@ -17,19 +16,16 @@ namespace P2E.AppLogic.Emby
     public class EmbyImportLogic : IEmbyImportLogic
     {
         private readonly IAppLogger _logger;
-        private readonly IEmbyClient _client;
         private readonly ILogicFactory _logicFactory;
         private readonly IServiceFactory _serviceFactory;
         private readonly IConsoleLibraryOptions _consoleLibraryOptions;
 
         public EmbyImportLogic(IAppLogger logger,
-            IEmbyClient client,
             ILogicFactory logicFactory,
             IServiceFactory serviceFactory,
             IConsoleLibraryOptions consoleLibraryOptions)
         {
             _logger = logger;
-            _client = client;
             _logicFactory = logicFactory;
             _serviceFactory = serviceFactory;
             _consoleLibraryOptions = consoleLibraryOptions;
@@ -38,7 +34,7 @@ namespace P2E.AppLogic.Emby
         public async Task<bool> RunAsync(IReadOnlyCollection<IPlexMovieMetadata> plexMovieMetadataItems)
         {
             var spinWheelService = _serviceFactory.CreateService<ISpinWheelService>();
-            var embyService = _serviceFactory.CreateService<IEmbyService, IEmbyClient>(_client);
+            var embyService = _serviceFactory.CreateService<IEmbyService>();
 
             var libraryIdentifier = await GetLibraryIdentifierAsync(embyService, spinWheelService, _consoleLibraryOptions.EmbyLibraryName);
             if (libraryIdentifier == null)
@@ -115,7 +111,7 @@ namespace P2E.AppLogic.Emby
             IEmbyImportMovieLogic embyImportMovieLogic = null;
             try
             {
-                embyImportMovieLogic = _logicFactory.CreateEmbyImportMovieLogic(_client);
+                embyImportMovieLogic = _logicFactory.CreateLogic<IEmbyImportMovieLogic>();
                 embyImportMovieLogic.ItemProcessed += spinWheelService.OnItemProcessed;
 
                 await spinWheelService.StartSpinWheelAsync(cts.Token);

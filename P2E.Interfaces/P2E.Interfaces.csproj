@@ -62,8 +62,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppLogic\Emby\IEmbyImportMovieImagesLogic.cs" />
     <Compile Include="AppLogic\Emby\IEmbyImportMovieLogic.cs" />
     <Compile Include="AppLogic\Emby\IEmbyImportLogic.cs" />
+    <Compile Include="AppLogic\ILogic.cs" />
     <Compile Include="AppLogic\IMainLogic.cs" />
     <Compile Include="AppLogic\Plex\IPlexExportLogic.cs" />
     <Compile Include="CommandLine\IConsoleLibraryOptions.cs" />

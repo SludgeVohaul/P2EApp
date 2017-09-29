@@ -54,6 +54,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Emby\EmbyImportMovieImagesLogic.cs" />
     <Compile Include="Emby\EmbyImportMovieLogic.cs" />
     <Compile Include="Emby\EmbyImportLogic.cs" />
     <Compile Include="MainLogic.cs" />

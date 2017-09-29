@@ -2,7 +2,7 @@
 
 namespace P2E.Interfaces.AppLogic
 {
-    public interface IMainLogic
+    public interface IMainLogic : ILogic
     {
         Task<bool> RunAsync();
     }

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using P2E.Interfaces.AppLogic;
+using P2E.Interfaces.AppLogic.Emby;
+using P2E.Interfaces.AppLogic.Plex;
 using P2E.Interfaces.CommandLine.ServerOptions;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
@@ -64,8 +66,8 @@ namespace P2E.AppLogic
                     return false;
                 }
 
-                var plexExportLogic = _logicFactory.CreatePlexExportLogic(plexClient);
-                var embyImportLogic = _logicFactory.CreateEmbyImportLogic(embyClient);
+                var plexExportLogic = _logicFactory.CreateLogic<IPlexExportLogic>();
+                var embyImportLogic = _logicFactory.CreateLogic<IEmbyImportLogic>();
 
                 // TODO - handle RemoteLoggedOut?
                 //_embyClient.RemoteLoggedOut += EmbyClient_RemoteLoggedOut;
