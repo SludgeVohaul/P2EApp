@@ -65,6 +65,7 @@
     <Compile Include="AppLogic\Emby\IEmbyImportMovieImagesLogic.cs" />
     <Compile Include="AppLogic\Emby\IEmbyImportMovieLogic.cs" />
     <Compile Include="AppLogic\Emby\IEmbyImportLogic.cs" />
+    <Compile Include="AppLogic\Emby\IEmbyImportMovieMetadataLogic.cs" />
     <Compile Include="AppLogic\ILogic.cs" />
     <Compile Include="AppLogic\IMainLogic.cs" />
     <Compile Include="AppLogic\Plex\IPlexExportLogic.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="CommandLine\ServerOptions\IConsoleEmbyInstance1ConnectionOptions.cs" />
     <Compile Include="CommandLine\ServerOptions\IConsolePlexInstance1ConnectionOptions.cs" />
     <Compile Include="DataObjects\Emby\Library\ICollectionIdentifier.cs" />
+    <Compile Include="DataObjects\Emby\Library\IEmbyMovieMetadata.cs" />
     <Compile Include="DataObjects\Emby\Library\IMovieIdentifier.cs" />
     <Compile Include="DataObjects\Emby\Library\IItemIdentifier.cs" />
     <Compile Include="DataObjects\Emby\Library\ILibraryIdentifier.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Repositories\Plex\IPlexRepository.cs" />
     <Compile Include="Services\Emby\IEmbyImageService.cs" />
+    <Compile Include="Services\Emby\IEmbyMetadataService.cs" />
     <Compile Include="Services\Emby\IEmbyService.cs" />
     <Compile Include="Services\IService.cs" />
     <Compile Include="Services\Plex\Exceptions\ResponseFailureException.cs" />

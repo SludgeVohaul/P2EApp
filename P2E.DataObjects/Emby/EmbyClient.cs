@@ -4,6 +4,8 @@ using Emby.ApiClient;
 using Emby.ApiClient.Cryptography;
 using Emby.ApiClient.Model;
 using Emby.ApiClient.Net;
+using MediaBrowser.Model.Dto;
+using Newtonsoft.Json;
 using P2E.Interfaces.DataObjects;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Logging;
@@ -34,9 +36,9 @@ namespace P2E.DataObjects.Emby
         }
 
         public async Task<T> SendAsync<T>(string url,
-                                  string requestMethod,
-                                  QueryStringDictionary args = null,
-                                  CancellationToken cancellationToken = default(CancellationToken)) where T : class
+                                          string requestMethod,
+                                          QueryStringDictionary args = null,
+                                          CancellationToken cancellationToken = default(CancellationToken)) where T : class
         {
             // Client can send only one request at any time.
             await SemSlim.WaitAsync(cancellationToken);
@@ -44,7 +46,6 @@ namespace P2E.DataObjects.Emby
             {
                 url = AddDataFormat(url);
                 var requestContent = args?.GetQueryString();
-
                 var httpRequest = new HttpRequest
                 {
                     Url = url,
@@ -65,6 +66,36 @@ namespace P2E.DataObjects.Emby
                 SemSlim.Release();
             }
         }
+
+        public async Task UpdateItemAsync(string id,
+                                          BaseItemDto baseItemDto,
+                                          CancellationToken cancellationToken = default(CancellationToken))
+        {
+            // Client can send only one request at any time.
+            await SemSlim.WaitAsync(cancellationToken);
+            try
+            {
+                var url = AddDataFormat(GetApiUrl($"Items/{id}"));
+                var requestContent = JsonConvert.SerializeObject(baseItemDto, Formatting.None);
+                var httpRequest = new HttpRequest
+                {
+                    Url = url,
+                    CancellationToken = cancellationToken,
+                    RequestHeaders = HttpHeaders,
+                    Method = "POST",
+                    RequestContentType = "application/json",
+                    RequestContent = requestContent,
+                };
+
+                await HttpClient.SendAsync(httpRequest);
+            }
+            finally
+            {
+                SemSlim.Release();
+            }
+        }
+
+
 
         public async Task LoginAsync()
         {

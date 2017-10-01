@@ -57,11 +57,16 @@
     <Compile Include="Emby\EmbyImportMovieImagesLogic.cs" />
     <Compile Include="Emby\EmbyImportMovieLogic.cs" />
     <Compile Include="Emby\EmbyImportLogic.cs" />
+    <Compile Include="Emby\EmbyImportMovieMetadataLogic.cs" />
     <Compile Include="MainLogic.cs" />
     <Compile Include="Plex\PlexExportLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\P2E.DataObjects\P2E.DataObjects.csproj">
+      <Project>{0ED6C794-C288-482F-8070-9B918A28C44B}</Project>
+      <Name>P2E.DataObjects</Name>
+    </ProjectReference>
     <ProjectReference Include="..\P2E.Interfaces\P2E.Interfaces.csproj">
       <Project>{004a4c44-8bd7-4065-921c-f891cc3dbd97}</Project>
       <Name>P2E.Interfaces</Name>

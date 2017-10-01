@@ -162,7 +162,16 @@ namespace P2E.Repositories.Emby
             await client.SendAsync<EmptyRequestResult>(url, "DELETE");
         }
 
+        public async Task UpdateMetadataAsync(IEmbyClient client, IEmbyMovieMetadata movieMetadata, string movieId)
+        {
+            var baseItemDto = await client.GetItemAsync(movieId, client.CurrentUserId);
 
+            baseItemDto.Name = movieMetadata.Name;
+            baseItemDto.OriginalTitle = movieMetadata.OriginalTitle;
+            baseItemDto.ForcedSortName = movieMetadata.ForcedSortName;
+
+            await client.UpdateItemAsync(movieId, baseItemDto);
+        }
 
 
 

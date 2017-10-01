@@ -20,11 +20,9 @@ namespace P2E.Interfaces.Repositories.Emby
         Task AddImageToMovieAsync(IEmbyClient client, ImageType imageType, Uri imageUrl, string movieId);
         Task ReindexImageOfMovieAsync(IEmbyClient client, ImageType imageType, int index, int newIndex, string movieId);
         Task<IReadOnlyCollection<ImageInfo>> GetImageInfosAsync(IEmbyClient client, string movieId);
-
-
         Task DeleteImageFromMovieAsync(IEmbyClient client, ImageType imageType, int index, string movieId);
 
-
+        Task UpdateMetadataAsync(IEmbyClient client, IEmbyMovieMetadata movieMetadata, string movieId);
 
 
 
