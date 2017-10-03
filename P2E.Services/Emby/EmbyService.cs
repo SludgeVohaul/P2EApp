@@ -25,12 +25,13 @@ namespace P2E.Services.Emby
             await SemSlim.WaitAsync();
             try
             {
+                Logger.Log(Severity.Info, "Querying existing libraries.");
                 var libraryIdentifiers = await Repository.GetLibraryIdentifiersAsync(Client);
                 return libraryIdentifiers.FirstOrDefault(x => x.Name == libraryName);
             }
             catch (Exception ex)
             {
-                LogException(ex, "Failed to get library identifier:");
+                LogException(ex, "Failed to query existing libraries:");
                 return null;
             }
             finally
@@ -45,11 +46,12 @@ namespace P2E.Services.Emby
             await SemSlim.WaitAsync();
             try
             {
+                Logger.Log(Severity.Info, "Querying existing movies.");
                 return await Repository.GetMovieIdentifiersAsync(Client, libraryIdentifier.Id);
             }
             catch (Exception ex)
             {
-                LogException(ex, "Failed to get movie identifiers:");
+                LogException(ex, "Failed to query existing movies:");
                 return null;
             }
             finally
