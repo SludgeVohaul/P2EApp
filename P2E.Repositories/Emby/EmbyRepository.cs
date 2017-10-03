@@ -11,6 +11,7 @@ using P2E.ExtensionMethods;
 using P2E.Interfaces.DataObjects.Emby;
 using P2E.Interfaces.Repositories.Emby;
 using MediaBrowser.Model.Entities;
+using MediaBrowser.Model.System;
 using Newtonsoft.Json;
 using P2E.DataObjects.Emby.Library;
 using P2E.Interfaces.DataObjects.Emby.Library;
@@ -174,6 +175,12 @@ namespace P2E.Repositories.Emby
             baseItemDto.ForcedSortName = movieMetadata.ForcedSortName;
 
             await client.UpdateItemAsync(movieId, baseItemDto);
+        }
+
+        public async Task<PublicSystemInfo> GetPublicSystemInfoAsync(IEmbyClient client)
+        {
+            var url = client.GetApiUrl("System/Info/Public");
+            return await client.SendAsync<PublicSystemInfo>(url, "GET");
         }
 
 

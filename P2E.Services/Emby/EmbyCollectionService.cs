@@ -96,7 +96,7 @@ namespace P2E.Services.Emby
                 if (_serverOperatingSystem != null) return _serverOperatingSystem.Value;
 
                 Logger.Log(Severity.Info, "Querying the server's operating system.");
-                var publicSystemInfo = await Client.GetPublicSystemInfoAsync();
+                var publicSystemInfo = await Repository.GetPublicSystemInfoAsync(Client);
 
                 OperatingSystem osEnum;
                 if (Enum.TryParse(publicSystemInfo.OperatingSystem, out osEnum))
