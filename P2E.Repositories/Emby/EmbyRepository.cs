@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Emby.ApiClient;
 using Emby.ApiClient.Model;
 using MediaBrowser.Model.Collections;
 using MediaBrowser.Model.Dto;
@@ -91,7 +90,7 @@ namespace P2E.Repositories.Emby
         /// </remarks>
         public async Task<ICollectionIdentifier> CreateCollectionAsync(IEmbyClient client, string collectionName)
         {
-            var args = new QueryStringDictionary
+            var args = new Dictionary<string, string>
             {
                 {"IsLocked", "false"},
                 {"Name", collectionName},
@@ -116,7 +115,7 @@ namespace P2E.Repositories.Emby
         /// for the POST URL.</remarks>
         public async Task AddMovieToCollectionAsync(IEmbyClient client, string movieId, string collectionId)
         {
-            var args = new QueryStringDictionary
+            var args = new Dictionary<string, string>
             {
                 {"Ids", movieId}
             };
@@ -127,7 +126,7 @@ namespace P2E.Repositories.Emby
 
         public async Task AddImageToMovieAsync(IEmbyClient client, ImageType imageType, Uri imageUrl, string movieId)
         {
-            var args = new QueryStringDictionary
+            var args = new Dictionary<string, string>
             {
                 {"Type", imageType.ToString()},
                 {"ImageUrl", imageUrl.AbsoluteUri}
@@ -145,7 +144,7 @@ namespace P2E.Repositories.Emby
         /// </remarks>
         public async Task ReindexImageOfMovieAsync(IEmbyClient client, ImageType imageType, int index, int newIndex, string movieId)
         {
-            var args = new QueryStringDictionary
+            var args = new Dictionary<string, string>
             {
                 { "newIndex", newIndex.ToString()}
             };

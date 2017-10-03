@@ -1,4 +1,7 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Emby.ApiClient;
 using Emby.ApiClient.Cryptography;
@@ -37,7 +40,7 @@ namespace P2E.DataObjects.Emby
 
         public async Task<T> SendAsync<T>(string url,
                                           string requestMethod,
-                                          QueryStringDictionary args = null,
+                                          Dictionary<string,string> args = null,
                                           CancellationToken cancellationToken = default(CancellationToken)) where T : class
         {
             // Client can send only one request at any time.
@@ -45,7 +48,12 @@ namespace P2E.DataObjects.Emby
             try
             {
                 url = AddDataFormat(url);
-                var requestContent = args?.GetQueryString();
+                // FYI: with QueryStringDictionary one could use GetQueryString() here,
+                // but this is not working. See
+                // https://emby.media/community/index.php?/topic/51473-apiclient-querystringdictionarycs-please-fix-getencodedvalue/
+                var requestContent = args?
+                    .Select(x => $"{x.Key}={WebUtility.UrlEncode(x.Value)}")
+                    .Aggregate((i, j) => $"{i}&{j}");
                 var httpRequest = new HttpRequest
                 {
                     Url = url,

@@ -1,6 +1,6 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using Emby.ApiClient;
 using Emby.ApiClient.Model;
 using MediaBrowser.Model.Dto;
 
@@ -10,7 +10,7 @@ namespace P2E.Interfaces.DataObjects.Emby
     {
         Task<T> SendAsync<T>(string url,
                              string requestMethod,
-                             QueryStringDictionary args = null,
+                             Dictionary<string, string> args = null,
                              CancellationToken cancellationToken = default(CancellationToken)) where T : class;
 
         Task UpdateItemAsync(string id,
