@@ -2,6 +2,8 @@
 {
     public interface ICollectionIdentifier : IItemIdentifier
     {
-        string PathBasename { get; }
+        string Filename { get; }
+        string Path { get; }
+        string Name { get; }
     }
 }

@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Emby\EmbyBaseService.cs" />
+    <Compile Include="Emby\EmbyCollectionService.cs" />
     <Compile Include="Emby\EmbyImageService.cs" />
     <Compile Include="Emby\EmbyMetadataService.cs" />
     <Compile Include="Emby\EmbyService.cs" />

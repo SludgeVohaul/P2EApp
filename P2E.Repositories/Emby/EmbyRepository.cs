@@ -79,8 +79,9 @@ namespace P2E.Repositories.Emby
             return itemsResult.Items
                 .Select(x => new CollectionIdentifier
                 {
-                    PathBasename = Path.GetFileName(x.Path)?.Replace(" [boxset]", ""),
-                    Id = x.Id
+                    Path = x.Path,
+                    Id = x.Id,
+                    Name = x.Name
                 })
                 .ToArray();
         }
@@ -88,22 +89,25 @@ namespace P2E.Repositories.Emby
         /// <remarks>Please read
         /// https://emby.media/community/index.php?/topic/50514-apiclient-how-to-check-whether-an-arbitrary-string-matches-an-existing-boxset/
         /// </remarks>
-        public async Task<ICollectionIdentifier> CreateCollectionAsync(IEmbyClient client, string pathBasename)
+        public async Task<ICollectionIdentifier> CreateCollectionAsync(IEmbyClient client, string collectionName)
         {
             var args = new QueryStringDictionary
             {
                 {"IsLocked", "false"},
-                {"Name", pathBasename},
+                {"Name", collectionName},
                 {"ParentId", ""},
                 {"Ids", ""}
             };
             var url = client.GetApiUrl("Collections");
             var collectionCreationResult = await client.SendAsync<CollectionCreationResult>(url, "POST", args);
 
+            var baseItemDto = await client.GetItemAsync(collectionCreationResult.Id, client.CurrentUserId);
+
             return new CollectionIdentifier
             {
-                PathBasename = pathBasename,
+                Path = baseItemDto.Path,
                 Id = collectionCreationResult.Id,
+                Name = baseItemDto.Name
             };
         }
 

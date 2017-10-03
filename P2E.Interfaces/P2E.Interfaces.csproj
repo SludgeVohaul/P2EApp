@@ -62,6 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppLogic\Emby\IEmbyImportMovieCollectionsLogic.cs" />
     <Compile Include="AppLogic\Emby\IEmbyImportMovieImagesLogic.cs" />
     <Compile Include="AppLogic\Emby\IEmbyImportMovieLogic.cs" />
     <Compile Include="AppLogic\Emby\IEmbyImportLogic.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="Repositories\Emby\IEmbyRepository.cs" />
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Repositories\Plex\IPlexRepository.cs" />
+    <Compile Include="Services\Emby\IEmbyCollectionService.cs" />
     <Compile Include="Services\Emby\IEmbyImageService.cs" />
     <Compile Include="Services\Emby\IEmbyMetadataService.cs" />
     <Compile Include="Services\Emby\IEmbyService.cs" />

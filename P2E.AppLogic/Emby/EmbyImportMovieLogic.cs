@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using P2E.DataObjects.Emby.Library;
@@ -9,7 +7,6 @@ using P2E.Interfaces.DataObjects.Emby.Library;
 using P2E.Interfaces.DataObjects.Plex.Library;
 using P2E.Interfaces.Factories;
 using P2E.Interfaces.Logging;
-using P2E.Interfaces.Services.Emby;
 
 namespace P2E.AppLogic.Emby
 {
@@ -23,15 +20,11 @@ namespace P2E.AppLogic.Emby
 
         private readonly IAppLogger _logger;
         private readonly ILogicFactory _logicFactory;
-        private readonly IServiceFactory _serviceFactory;
 
-        public EmbyImportMovieLogic(IAppLogger logger,
-                                    ILogicFactory logicFactory,
-                                    IServiceFactory serviceFactory)
+        public EmbyImportMovieLogic(IAppLogger logger, ILogicFactory logicFactory)
         {
             _logger = logger;
             _logicFactory = logicFactory;
-            _serviceFactory = serviceFactory;
         }
 
         public async Task<bool> RunAsync(IPlexMovieMetadata plexMovieMetadata, IMovieIdentifier embyMovieIdentifier)
@@ -41,29 +34,15 @@ namespace P2E.AppLogic.Emby
             await SemSlim.WaitAsync();
             try
             {
-                var embyService = _serviceFactory.CreateService<IEmbyService>();
-
                 _logger.Log(Severity.Info, $"Processing '{plexMovieMetadata.Title}'");
 
-                // Get (and create if necessary) all collections the movie belongs to.
-                var collectionIdentifiers = await GetCollectionsForMovieAsync(embyService, plexMovieMetadata.Collections);
-                if (collectionIdentifiers == null)
+                // Add movie to all collections (create if necessary).
+                var embyImportMovieCollectionsLogic = _logicFactory.CreateLogic<IEmbyImportMovieCollectionsLogic>();
+                if (await embyImportMovieCollectionsLogic.RunAsync(plexMovieMetadata.Collections, embyMovieIdentifier) == false)
                 {
-                    var msg = $"Failed to update Emby collections for '{plexMovieMetadata.Title}'. Movie will not be added into any collection.";
+                    var msg = $"Failed to update Emby collections for '{plexMovieMetadata.Title}'.";
                     _logger.Log(Severity.Warn, msg);
                     retval = false;
-                }
-                else
-                {
-                    // Add the movie to all collections.
-                    var addMovieToCollectionsTasks = collectionIdentifiers
-                        .Select(x => embyService.TryAddMovieToCollectionAsync(embyMovieIdentifier, x));
-                    var addMovieToCollectionsResults = await Task.WhenAll(addMovieToCollectionsTasks);
-                    if (addMovieToCollectionsResults.Any(x => x == false))
-                    {
-                        _logger.Log(Severity.Warn, $"Failed to add '{plexMovieMetadata.Title}' to one or more collections.");
-                        retval = false;
-                    }
                 }
 
                 // Add images to movie.
@@ -90,31 +69,6 @@ namespace P2E.AppLogic.Emby
                 OnItemProcessed();
                 SemSlim.Release();
             }
-        }
-
-        private async Task<IReadOnlyCollection<ICollectionIdentifier>> GetCollectionsForMovieAsync(IEmbyService service, IReadOnlyCollection<string> plexCollections)
-        {
-            // Plex movie is not included in any collections.
-            if (plexCollections.Count == 0) return new ICollectionIdentifier[] {};
-
-            // Already present Emby collections needed by the movie.
-            var embyCollections = await service.GetCollectionIdentifiersAsync();
-            if (embyCollections == null) return null;
-            var existingMovieCollections = new List<ICollectionIdentifier>(embyCollections.Where(x => plexCollections.Contains(x.PathBasename)));
-
-            // All collections needed by the movie are already present.
-            if (plexCollections.Count == existingMovieCollections.Count) return existingMovieCollections;
-
-            var missingMovieCollections = plexCollections
-                .Except(existingMovieCollections.Select(x => x.PathBasename))
-                .ToArray();
-
-            _logger.Log(Severity.Info, "Creating missing collections:");
-            var createdCollections = await Task.WhenAll(missingMovieCollections.Select(service.CreateCollectionAsync));
-            if (createdCollections.Any(x => x == null)) return null;
-
-            existingMovieCollections.AddRange(createdCollections);
-            return existingMovieCollections;
         }
 
         private static IEmbyMovieMetadata CreateEmbyMovieMetadata(IPlexMovieMetadata plexMovieMetadata)

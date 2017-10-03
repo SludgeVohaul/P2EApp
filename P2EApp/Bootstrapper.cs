@@ -73,12 +73,14 @@ namespace P2EApp
             kernel.Bind<IMainLogic>().To<MainLogic>().InSingletonScope();
             kernel.Bind<IEmbyImportLogic>().To<EmbyImportLogic>().InSingletonScope();
             kernel.Bind<IEmbyImportMovieLogic>().To<EmbyImportMovieLogic>().InSingletonScope();
+            kernel.Bind<IEmbyImportMovieCollectionsLogic>().To<EmbyImportMovieCollectionsLogic>().InSingletonScope();
             kernel.Bind<IEmbyImportMovieImagesLogic>().To<EmbyImportMovieImagesLogic>().InSingletonScope();
             kernel.Bind<IEmbyImportMovieMetadataLogic>().To<EmbyImportMovieMetadataLogic>().InSingletonScope();
             kernel.Bind<IPlexExportLogic>().To<PlexExportLogic>().InSingletonScope();
 
             kernel.Bind<IUserCredentialsService>().To<UserCredentialsService>();
             kernel.Bind<IEmbyService>().To<EmbyService>();
+            kernel.Bind<IEmbyCollectionService>().To<EmbyCollectionService>();
             kernel.Bind<IEmbyImageService>().To<EmbyImageService>();
             kernel.Bind<IEmbyMetadataService>().To<EmbyMetadataService>();
             kernel.Bind<IPlexService>().To<PlexService>();
