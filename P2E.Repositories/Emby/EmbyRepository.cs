@@ -156,21 +156,37 @@ namespace P2E.Repositories.Emby
             await client.SendAsync<EmptyRequestResult>(url, "DELETE");
         }
 
+        public async Task<PublicSystemInfo> GetPublicSystemInfoAsync(IEmbyClient client)
+        {
+            var url = client.GetApiUrl("System/Info/Public");
+            return await client.SendAsync<PublicSystemInfo>(url, "GET");
+        }
+
         public async Task UpdateMetadataAsync(IEmbyClient client, IEmbyMovieMetadata movieMetadata, string movieId)
         {
             var baseItemDto = await client.GetItemAsync(movieId, client.CurrentUserId);
 
             baseItemDto.Name = movieMetadata.Name;
-            baseItemDto.OriginalTitle = movieMetadata.OriginalTitle;
             baseItemDto.ForcedSortName = movieMetadata.ForcedSortName;
 
             await client.UpdateItemAsync(movieId, baseItemDto);
         }
 
-        public async Task<PublicSystemInfo> GetPublicSystemInfoAsync(IEmbyClient client)
+        public async Task SetMovieAsWatchedAsync(IEmbyClient client, DateTime lastPlayedDate, string movieId)
         {
-            var url = client.GetApiUrl("System/Info/Public");
-            return await client.SendAsync<PublicSystemInfo>(url, "GET");
+            var args = new Dictionary<string, string>
+            {
+                { "DatePlayed", lastPlayedDate.ToLocalTime().ToString("yyyyMMddHHmmss")}
+            };
+
+            var url = client.GetApiUrl($"Users/{client.CurrentUserId}/PlayedItems/{movieId}");
+            await client.SendAsync<EmptyRequestResult>(url, "POST", args);
+        }
+
+        public async Task SetMovieAsUnwatchedAsync(IEmbyClient client, string movieId)
+        {
+            var url = client.GetApiUrl($"Users/{client.CurrentUserId}/PlayedItems/{movieId}");
+            await client.SendAsync<EmptyRequestResult>(url, "DELETE");
         }
     }
 }

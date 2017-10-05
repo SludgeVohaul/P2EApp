@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using P2E.DataObjects.Emby.Library;
 using P2E.Interfaces.AppLogic.Emby;
 using P2E.Interfaces.DataObjects.Emby.Library;
 using P2E.Interfaces.DataObjects.Plex.Library;
@@ -55,8 +54,7 @@ namespace P2E.AppLogic.Emby
 
                 // Update movie metadata.
                 var embyImportMovieMetadataLogic = _logicFactory.CreateLogic<IEmbyImportMovieMetadataLogic>();
-                var embyMovieMetaData = CreateEmbyMovieMetadata(plexMovieMetadata);
-                if (await embyImportMovieMetadataLogic.RunAsync(embyMovieMetaData, embyMovieIdentifier) == false)
+                if (await embyImportMovieMetadataLogic.RunAsync(plexMovieMetadata, embyMovieIdentifier) == false)
                 {
                     _logger.Log(Severity.Warn, $"Metadata could not be updated on '{plexMovieMetadata.Title}'.");
                     retval = false;
@@ -69,17 +67,6 @@ namespace P2E.AppLogic.Emby
                 OnItemProcessed();
                 SemSlim.Release();
             }
-        }
-
-        private static IEmbyMovieMetadata CreateEmbyMovieMetadata(IPlexMovieMetadata plexMovieMetadata)
-        {
-            return new EmbyMovieMetadata
-            {
-                Name = plexMovieMetadata.Title,
-                OriginalTitle = plexMovieMetadata.OriginalTitle,
-                ForcedSortName = plexMovieMetadata.TitleSort,
-                ViewCount = plexMovieMetadata.ViewCount
-            };
         }
 
         private void OnItemProcessed()

@@ -44,13 +44,17 @@ namespace P2E.Repositories.Plex
                 .Select(x => new PlexMovieMetadata
                 {
                     Title = x.Title,
-                    OriginalTitle = x.OriginalTitle,
                     TitleSort = x.TitleSort,
+
                     ViewCount = x.ViewCount,
+                    LastViewedAt = x.LastViewedAt,
+
                     ThumbUri = CreateAbsoluteUri(client.BaseUrl, x.Thumb),
                     ArtUri = CreateAbsoluteUri(client.BaseUrl, x.Art),
+
                     Collections = x.Collections
                         .Select(c => c.Name).ToList(),
+
                     Filenames = x.Medias
                         .SelectMany(m => m.Parts)
                         .Select(p => Path.GetFileName(p.FileName))

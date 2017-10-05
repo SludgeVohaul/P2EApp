@@ -9,10 +9,12 @@ namespace P2E.DataObjects.Plex.Library
         public List<string> Collections { get; set; }
         public List<string> Filenames { get; set; }
 
-        public string OriginalTitle { get; set; }
         public string Title { get; set; }
         public string TitleSort { get; set; }
-        public string ViewCount { get; set; }
+
+        public int? ViewCount { get; set; }
+        public long? LastViewedAt { get; set; }
+
         public Uri ThumbUri { get; set; }
         public Uri ArtUri { get; set; }
     }

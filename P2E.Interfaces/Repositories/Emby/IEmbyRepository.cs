@@ -25,11 +25,7 @@ namespace P2E.Interfaces.Repositories.Emby
         Task DeleteImageFromMovieAsync(IEmbyClient client, ImageType imageType, int index, string movieId);
 
         Task UpdateMetadataAsync(IEmbyClient client, IEmbyMovieMetadata movieMetadata, string movieId);
-
-
-
-        //Task<IList<IMovieIdentifier>> GetMovieIdsAsync(IEmbyClient client, string libraryName);
-        //Task GetMovieItemsAsync(string filename, IEmbyClient client);
-        //Task GetStuffAsync(IEmbyClient client);
+        Task SetMovieAsWatchedAsync(IEmbyClient client, DateTime lastPlayedDate, string movieId);
+        Task SetMovieAsUnwatchedAsync(IEmbyClient client, string movieId);
     }
 }

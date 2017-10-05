@@ -70,6 +70,10 @@
       <Project>{B256B2BA-9BD6-47CF-8D7E-277A6956B3B3}</Project>
       <Name>AppConsole</Name>
     </ProjectReference>
+    <ProjectReference Include="..\P2E.DataObjects\P2E.DataObjects.csproj">
+      <Project>{0ED6C794-C288-482F-8070-9B918A28C44B}</Project>
+      <Name>P2E.DataObjects</Name>
+    </ProjectReference>
     <ProjectReference Include="..\P2E.Interfaces\P2E.Interfaces.csproj">
       <Project>{004a4c44-8bd7-4065-921c-f891cc3dbd97}</Project>
       <Name>P2E.Interfaces</Name>

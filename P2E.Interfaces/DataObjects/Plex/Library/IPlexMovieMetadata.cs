@@ -8,10 +8,11 @@ namespace P2E.Interfaces.DataObjects.Plex.Library
         List<string> Collections { get; }
         List<string> Filenames { get; }
 
-        string OriginalTitle { get; }
         string Title { get; }
         string TitleSort { get; }
-        string ViewCount { get; }
+
+        int? ViewCount { get; }
+        long? LastViewedAt { get; }
 
         Uri ThumbUri { get; }
         Uri ArtUri { get; }
